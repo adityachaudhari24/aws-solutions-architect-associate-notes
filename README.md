@@ -1,12 +1,3 @@
-<style>
-  .highlighted-text {
-    color: #333333; /* Dark gray text color */
-    background-color: #ffff99; /* Light yellow background */
-    padding: 2px;
-    border-radius: 3px;
-  }
-</style>
-
 # AWS Solutions Architect Associate Notes
 Sharing my learnings and notes while I prepare for the exam in my 5 weeks plan.
 
