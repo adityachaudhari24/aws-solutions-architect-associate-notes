@@ -1,3 +1,12 @@
+<style>
+  .highlighted-text {
+    color: #333333; /* Dark gray text color */
+    background-color: #ffff99; /* Light yellow background */
+    padding: 2px;
+    border-radius: 3px;
+  }
+</style>
+
 # AWS Solutions Architect Associate Notes
 Sharing my learnings and notes while I prepare for the exam in my 5 weeks plan.
 
@@ -12,13 +21,23 @@ Sharing my learnings and notes while I prepare for the exam in my 5 weeks plan.
 TODO - 5 weeks plan 
 
 ## Identity Access Management (IAM)
-#### Questions and Answers for IAM and Policies
 #### Q: What is the difference between policy and role in AWS IAM?
 A policy is a document that specifies what actions are allowed or denied on AWS resources—it’s like a rulebook. <br>
 A role is an IAM identity that holds one or more policies and can be temporarily assumed by a user or service to gain those permissions.<br>
 **Think of it like this:** <br>
-Policy = Rules: They define what you can or cannot do.
-Role = Job Position: It’s like a temporary job title that comes with a set of rules (policies) that the person or service must follow.
+Policy = Rules: They define what you can or cannot do. <br>
+Role = Job Position: It’s like a temporary job title that comes with a set of rules (policies) that the person or service must follow. <br>
+
+#### Q: How Users, Groups, Roles, and Policies align with each other ?
+Users: Assigned credentials (username/password, access keys). <br>
+Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
+Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. <Br>
+Policies: JSON documents that define permissions. They are not standalone identities – they must be attached to a User, Group, or Role. <br>
+
+IAM roles provide temporary credentials (access key, secret key, and token) when assumed, replacing long-term access keys. <br>
+<span class="highlighted-text"> Role is like hat, which is being wear by user or service to perform certain tasks.</span> <br>
+These credentials are short-lived and used by users, apps, or AWS services to perform tasks securely. <br>
+Example reference link : https://www.youtube.com/watch?v=miij_0HkBws <br>
 
 #### Q: What are policies and what are the types of policies ?
 Access in AWS is managed by creating policies and attaching them to IAM identities (users, groups of users, or roles) or AWS resources. 
@@ -89,14 +108,6 @@ Policies have below elements :
 Below is the flow in which these policies are evaluated before a request is either allowed or denied.
 ![img.png](images/6iampolicytypes.png). <br>
 
-#### Q: How Users, Groups, Roles, and Policies Connect ?
-Users: Assigned credentials (username/password, access keys). <br>
-Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
-Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. <Br>
-Policies: JSON documents that define permissions. They are not standalone identities – they must be attached to a User, Group, or Role. <br>
 
-IAM roles provide temporary credentials (access key, secret key, and token) when assumed, replacing long-term access keys. <br>
-These credentials are short-lived and used by users, apps, or AWS services to perform tasks securely. <br>
-Example reference link : https://www.youtube.com/watch?v=miij_0HkBws <br>
 
 
