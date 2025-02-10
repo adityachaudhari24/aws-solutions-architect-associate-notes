@@ -1,9 +1,17 @@
 # AWS Solutions Architect Associate Notes
 Sharing my learnings and notes while I prepare for the exam in my 5 weeks plan.
 
+
+## Table of Contents
+1. <a href="#introduction">Introduction</a>
+2. <a href="#identity-access-management-iam">Identity Access Management (IAM)</a>
+
 ## Week 1 Learnings
 
-## IAM
+## Introduction
+TODO - 5 weeks plan 
+
+## Identity Access Management (IAM)
 #### Questions and Answers for IAM and Policies
 #### Q: What is the difference between policy and role in AWS IAM?
 A policy is a document that specifies what actions are allowed or denied on AWS resources—it’s like a rulebook. <br>
