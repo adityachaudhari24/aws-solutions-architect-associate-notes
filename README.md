@@ -13,6 +13,7 @@ TODO - 5 weeks plan
 
 ## Identity Access Management (IAM)
 #### Q: How Users, Groups, Roles, and Policies explained ?
+<details>
 Users: Assigned credentials (username/password, access keys). <br>
 Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
 Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. <Br>
@@ -22,8 +23,10 @@ IAM roles provide temporary credentials (access key, secret key, and token) when
 <span class="highlighted-text"> Role is like hat, which is being wear by user or service to perform certain tasks.</span> <br>
 These credentials are short-lived and used by users, apps, or AWS services to perform tasks securely. <br>
 Example reference link : https://www.youtube.com/watch?v=miij_0HkBws <br>
+</details>
 
 #### Q: What are policies and what are the types of policies ?
+<details>
 Access in AWS is managed by creating policies and attaching them to IAM identities (users, groups of users, or roles) or AWS resources. 
 A policy is an object in AWS that, when associated with an identity or resource, defines their permissions. AWS evaluates these policies when an IAM principal (user or role) makes a request regardless if it is from the AWS Management Console, the AWS CLI, or the AWS API. <br>
 
@@ -91,11 +94,11 @@ Policies have below elements :
 
 Below is the flow in which these policies are evaluated before a request is either allowed or denied.
 ![img.png](images/6iampolicytypes.png). <br>
-
+</details>
 
 #### Q: Two types of authorization model RBAC and ABAC what they are and difference between them?
+IMP - Recognize when to use ABAC (tags, scaling) vs. RBAC (static roles). Always check for aws:ResourceTag or aws:PrincipalTag in policies.
 <details>
-<summary> click for details , summary - Recognize when to use ABAC (tags, scaling) vs. RBAC (static roles). Always check for aws:ResourceTag or aws:PrincipalTag in policies.</summary>
 Both are IAM strategies to manage permissions, but they work differently. Let’s break them down with simple examples and exam-focused insights.
 
 ### 1. RBAC (Role-Based Access Control)
