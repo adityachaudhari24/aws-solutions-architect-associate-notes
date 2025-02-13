@@ -185,26 +185,29 @@ ABAC is scalable for dynamic environments (e.g., auto-scaling EC2 instances). No
 
 ## EC2
 
-<details>
-<summary>Q: EC2 Placement Groups types and use cases?</summary>
-1. **Cluster:** Single AZ, same rack (low latency). <br>
-   Use Cases : applications which require low latency and high network throughput. <br>
-2. **Partition:** Isolated partitions per rack (e.g., Hadoop/Cassandra). <br>
-   Use Cases : Large distributed apps like Hadoop, Cassandra, Kafka <br>
-   Scenario : A company is running a large-scale web application with multiple microservices. They need to ensure that the failure of one partition does not affect the others. By using a Partition placement group, they can isolate the instances of each microservice into different partitions, each on separate racks, to achieve fault tolerance and high availability. <br>
-3. **Spread:** Separate hardware per instance (critical apps). <br>
-   Use Cases : Critical apps that need high availability.
-   Scenario : A financial services company is running a critical trading application that requires high availability and fault tolerance. They need to ensure that the failure of a single hardware component does not affect the entire application. By using a Spread placement group, they can place each instance on separate hardware to minimize the risk of simultaneous failures and ensure continuous operation. <br>
+<details> <summary>Q: EC2 Placement Groups types and use cases?</summary>
 
-**Key Limits:**
-- Cluster groups risk AZ failure.
-- Spread groups support only 7 instances per AZ (EC2) or 5 (other services like EBS).
-- Can’t merge groups or move existing instances into a group.
+Cluster: Single AZ, same rack (low latency).<br> Use Cases: Low latency, high network throughput.<br>
 
-**Exam Tip:**
-- Always prioritize "low latency" → Cluster
-- "Fault tolerance" → Spread
-- "Large distributed apps" → Partition
+Partition: Isolated partitions per rack (e.g., Hadoop/Cassandra).<br> Use Cases: Large distributed apps like Hadoop, Cassandra, Kafka.<br> Scenario: Isolate microservices into different partitions to ensure fault tolerance and high availability.<br>
+
+Spread: Separate hardware per instance (critical apps).<br> Use Cases: Critical apps requiring high availability.<br> Scenario: Place each instance on separate hardware to minimize the risk of simultaneous failures and ensure continuous operation.<br>
+
+Key Limits:
+
+Cluster groups risk AZ failure.
+
+Spread groups support only 7 instances per AZ (EC2) or 5 (other services like EBS).
+
+Can’t merge groups or move existing instances into a group.
+
+Exam Tip:
+
+"Low latency" → Cluster
+
+"Fault tolerance" → Spread
+
+"Large distributed apps" → Partition
 
 </details>
 
