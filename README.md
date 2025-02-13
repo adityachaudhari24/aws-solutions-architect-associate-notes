@@ -220,6 +220,22 @@ It's a logical networking component in a VPC that represents a virtual network c
 You can create multiple ENIs and attach them to different instances **on the fly**. <br>
 <code style="color: orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
 
-#### EC2 notes
+#### Q. what is attached to the network interface?
+**Answer :** Security groups, public IP, Elastic IP, and MAC address. <br>
+MAC address means Media Access Control address, which is a unique identifier assigned to network interfaces for communications on the physical network segment. <br>
+
+
+#### EC2 ad-hoc notes
 **ENI (Elastic Network Interface):** This is for only specific AZ cannot be moved to another AZ. <br>
+
+<details> </details>
+#### Q. what is attached to the network interface?
+
+
+<details>
+  <summary>#### Q. What is the ENI and what are the types of ENI?</summary>
+  It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br>
+  You can create multiple ENIs and attach them to different instances **on the fly**. <br>
+  <code style="color: orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
+</details>
 
