@@ -196,9 +196,9 @@ This is the summary block
 
 #### Q: EC2 Placement Groups types and use cases?
 1. **Cluster:** Single AZ, same rack (low latency). <br> 
-   Use Cases : applications which require low latency and high network throughput.
+   Use Cases : applications which require low latency and high network throughput. <br>
 2. **Partition:** Isolated partitions per rack (e.g., Hadoop/Cassandra). <br>
-    Use Cases : Large distributed apps like Hadoop, Cassandra, Kafka
+    Use Cases : Large distributed apps like Hadoop, Cassandra, Kafka <br>
     Scenario : A company is running a large-scale web application with multiple microservices. They need to ensure that the failure of one partition does not affect the others. By using a Partition placement group, they can isolate the instances of each microservice into different partitions, each on separate racks, to achieve fault tolerance and high availability. <br>
 3. **Spread:** Separate hardware per instance (critical apps). <br>
     Use Cases : Critical apps that need high availability.
@@ -214,3 +214,12 @@ This is the summary block
 - Always prioritize "low latency" → Cluster
 - "Fault tolerance" → Spread
 - "Large distributed apps" → Partition
+
+#### Q: what is the ENI and what are the types of ENI?
+It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br> 
+You can create multiple ENIs and attach them to different instances **on the fly**. <br>
+<span style="color:orange">Bound to specific AZ, cannot be moved to another AZ.</span> <br>
+
+#### EC2 notes
+**ENI (Elastic Network Interface):** This is for only specific AZ cannot be moved to another AZ. <br>
+
