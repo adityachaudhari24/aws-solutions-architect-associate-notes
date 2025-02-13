@@ -6,15 +6,16 @@ Sharing my learnings and notes while I prepare for the exam.
 1. <a href="#introduction">Introduction</a>
 2. <a href="#identity-access-management-iam">Identity Access Management (IAM)</a>
 3. <a href="#EC2">Elastic Cloud Compute EC2</a>
-
+4<a href="#EC2">EBS volume</a>
 
 
 ## Introduction
 TODO
 
 ## Identity Access Management (IAM)
-#### Q: what is Users, Groups, Roles, and Policies? 
 <details>
+<summary> Q: what is Users, Groups, Roles, and Policies? </summary>
+
 Users: Assigned credentials (username/password, access keys). <br>
 Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
 Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. <Br>
@@ -26,8 +27,8 @@ These credentials are short-lived and used by users, apps, or AWS services to pe
 Example reference link : https://www.youtube.com/watch?v=miij_0HkBws <br>
 </details>
 
-#### Q: What are policies and what are the types of policies ?
 <details>
+<summary>Q: What are policies and what are the types of policies ?</summary>
 Policies are JSON documents defining permissions for users (IAM) or resources (S3, Lambda).
 
 simple policy example below : <br>
@@ -54,12 +55,12 @@ Policies have below elements :
 - version - Version of the policy language
 - id - Policy ID **(optional)**
 - statement - List of statements
-  - sid - Statement ID **(optional)**
-  - Effect - whether the statement allows or denies access
-  - Principal - account/user/role to which policy is attached to
-  - Action - List of actions that are allowed or denied
-  - Resource - List of resources to which the action is applied to
-  - Condition - Condition when the policy is in effect **(optional)**
+    - sid - Statement ID **(optional)**
+    - Effect - whether the statement allows or denies access
+    - Principal - account/user/role to which policy is attached to
+    - Action - List of actions that are allowed or denied
+    - Resource - List of resources to which the action is applied to
+    - Condition - Condition when the policy is in effect **(optional)**
 
 #### There are 6 types of policies all of these polices are evaluated before a request is either allowed or denied.
 
@@ -92,9 +93,9 @@ Below is the flow in which these policies are evaluated before a request is eith
 ![img.png](images/6iampolicytypes.png). <br>
 </details>
 
-#### Q: Two types of authorization model RBAC and ABAC what they are and difference between them?
-IMP - Recognize when to use ABAC (tags, scaling) vs. RBAC (static roles). Always check for aws:ResourceTag or aws:PrincipalTag in policies.
 <details>
+<summary>Q: Two types of authorization model RBAC and ABAC what they are and difference between them?</summary>
+IMP - Recognize when to use ABAC (tags, scaling) vs. RBAC (static roles). Always check for aws:ResourceTag or aws:PrincipalTag in policies.
 Both are IAM strategies to manage permissions, but they work differently. Let’s break them down with simple examples and exam-focused insights.
 
 ### 1. RBAC (Role-Based Access Control)
@@ -180,30 +181,20 @@ ABAC is scalable for dynamic environments (e.g., auto-scaling EC2 instances). No
 | Best for fixed, predictable resources. | Best for dynamic, rapidly changing resources. |
 | Requires policy updates for new resources. | Automatically applies to new tagged resources. |
 
-
 </details>
-
-
-#### Q: Test - ignore this for now
-<details>
-<summary>Click for example and explanation</summary>
-This is the summary block 
-</details>
-
-
 
 ## EC2
 
-#### Q: EC2 Placement Groups types and use cases?
-1. **Cluster:** Single AZ, same rack (low latency). <br> 
+<details>
+<summary>Q: EC2 Placement Groups types and use cases?</summary>
+1. **Cluster:** Single AZ, same rack (low latency). <br>
    Use Cases : applications which require low latency and high network throughput. <br>
 2. **Partition:** Isolated partitions per rack (e.g., Hadoop/Cassandra). <br>
-    Use Cases : Large distributed apps like Hadoop, Cassandra, Kafka <br>
-    Scenario : A company is running a large-scale web application with multiple microservices. They need to ensure that the failure of one partition does not affect the others. By using a Partition placement group, they can isolate the instances of each microservice into different partitions, each on separate racks, to achieve fault tolerance and high availability. <br>
+   Use Cases : Large distributed apps like Hadoop, Cassandra, Kafka <br>
+   Scenario : A company is running a large-scale web application with multiple microservices. They need to ensure that the failure of one partition does not affect the others. By using a Partition placement group, they can isolate the instances of each microservice into different partitions, each on separate racks, to achieve fault tolerance and high availability. <br>
 3. **Spread:** Separate hardware per instance (critical apps). <br>
-    Use Cases : Critical apps that need high availability.
-    Scenario : A financial services company is running a critical trading application that requires high availability and fault tolerance. They need to ensure that the failure of a single hardware component does not affect the entire application. By using a Spread placement group, they can place each instance on separate hardware to minimize the risk of simultaneous failures and ensure continuous operation. <br>
-
+   Use Cases : Critical apps that need high availability.
+   Scenario : A financial services company is running a critical trading application that requires high availability and fault tolerance. They need to ensure that the failure of a single hardware component does not affect the entire application. By using a Spread placement group, they can place each instance on separate hardware to minimize the risk of simultaneous failures and ensure continuous operation. <br>
 
 **Key Limits:**
 - Cluster groups risk AZ failure.
@@ -215,8 +206,7 @@ This is the summary block
 - "Fault tolerance" → Spread
 - "Large distributed apps" → Partition
 
-
-
+</details>
 
 
 <details>
@@ -370,13 +360,37 @@ Amazing thing is we do not need to do capacity planning. it scales automatically
 </details>
 
 
+<details>
+<summary>Q: Why is the "Delete On Termination" attribute enabled by default for the root volume but disabled for other EBS volumes?</summary>
+**Root Volume:**
+- **Reason:** The root volume contains the operating system and is essential for the instance to boot. When an instance is terminated, it is often desirable to delete the root volume to avoid unnecessary storage costs and to ensure that the instance is completely removed.
+- **Default Behavior:** Enabled by default to automatically clean up the root volume when the instance is terminated.
+
+**Other EBS Volumes:**
+- **Reason:** Additional EBS volumes are often used to store important data that may need to persist beyond the lifecycle of the instance. Automatically deleting these volumes could result in data loss.
+- **Default Behavior:** Disabled by default to ensure that data stored on these volumes is preserved even if the instance is terminated.
+</details>
+
+<details>
+<summary>Can you launch an EC2 instance using an AMI from another AWS Region?</summary>
+Answer: No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. AMIs are unique to each AWS Region.  Solution: You can copy the AMI to the target AWS Region and then use it to create your EC2 instances.
+</details>
+
+
+<details>
+<summary>Q. Tell me steps for encrypting an existing EBS volume ?</summary>
+
+</details>
+
 
 <details>
 <summary></summary>
 </details>
 
 
-
+<details>
+<summary></summary>
+</details>
 
 *****************
 TEST - IGNORE BELOW FOR NOW
