@@ -215,27 +215,179 @@ This is the summary block
 - "Fault tolerance" → Spread
 - "Large distributed apps" → Partition
 
-#### Q: what is the ENI and what are the types of ENI?
-It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br> 
-You can create multiple ENIs and attach them to different instances **on the fly**. <br>
-<code style="color: orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
-
-#### Q. what is attached to the network interface?
-**Answer :** Security groups, public IP, Elastic IP, and MAC address. <br>
-MAC address means Media Access Control address, which is a unique identifier assigned to network interfaces for communications on the physical network segment. <br>
 
 
-#### EC2 ad-hoc notes
-**ENI (Elastic Network Interface):** This is for only specific AZ cannot be moved to another AZ. <br>
-
-<details> </details>
-#### Q. what is attached to the network interface?
 
 
 <details>
-  <summary>#### Q. What is the ENI and what are the types of ENI?</summary>
+<summary>Q. What is the ENI and why it's used? (exam point of view)</summary>
+
+**Elastic Network Interface (ENI)** is a virtual network interface that you can attach to an Amazon EC2 instance in a Virtual Private Cloud (VPC). It enables you to create a management network, use network and security appliances, and create dual-homed instances with workloads/roles on distinct subnets.
+
+**what is attached to the network interface?**
+** Security groups, public IP, Elastic IP, private IP,and MAC address. <br>
+MAC address means Media Access Control address, which is a unique identifier assigned to network interfaces for communications on the physical network segment. <br>
+
+**Why and When It Is Used:**
+- **High Availability:** You can attach multiple ENIs to an EC2 instance, each in a different subnet, to ensure redundancy.
+- **Network Segmentation:** ENIs allow you to separate traffic types (e.g., management vs. data traffic) by attaching multiple interfaces to a single instance.
+- **Failover Scenarios:** ENIs can be moved between instances to quickly recover from failures.
+
+**Exam Tips:**
+**Key Points:**
+- ENIs are bound to a specific Availability Zone (AZ) and cannot be moved across AZs.
+- You can attach multiple ENIs to an instance, depending on the instance type.
+- ENIs retain their attributes (e.g., private IPs, MAC addresses) when detached and reattached to another instance.
+- ENIs are useful for creating dual-homed instances (e.g., instances with public and private IPs).
+
+**Common Mistakes:**
+- Forgetting that ENIs are AZ-specific.
+- Overlooking the fact that ENIs can have multiple private IPs and one public IP.
+- Confusing ENIs with Elastic IPs (EIPs), which are public IPs that can be remapped.
+</details>
+
+<details>
+<summary>Q. What is EC2 hibernate and use of it? scenarios ? 
+</summary>
+
+Pauses an EC2 instance and saves its in-memory state (RAM) to the root EBS volume, allowing it to resume later from the exact state. <br>
+User Case : 
+
+what is use of hibernation ? <br>
+- Save time by preserving the RAM state.
+- Resume instances faster than booting from scratch.
+- Ideal for long-running applications that need to be paused and resumed quickly. <br>
+
+**Key Prerequisites:**
+- Encrypted root EBS volume (mandatory).
+- RAM ≤ EBS root volume size (e.g., 16 GiB RAM → root volume ≥ 16 GiB).
+- Supported instance families: M5, C5, R5, T3 (not all instance types).
+
+**Hibernate vs. Stop:**
+- **Stop:** Terminates RAM state; starts fresh on next launch.
+- **Hibernate:** Preserves RAM state; resumes processes.
+</details>
+
+## EBS volume
+<details>
+<summary> Q. what is EBS volume and its use. </summary>
+<summary>What is EBS volume and its use?</summary>
+EBS volumes are like USB sticks for EC2, providing persistent block storage. They remain intact even after the associated EC2 instance is terminated. EBS volumes can be dynamically attached to or detached from EC2 instances, allowing for flexible storage management. <br>
+- **Per AZ:** EBS volumes are specific to an Availability Zone.
+- **Attachment:** Can be mounted to multiple EC2 instances but attached to only one instance at a time. <br>
+### Exam Tips:
+- **Incremental Nature of Snapshots:** Understand that EBS snapshots are incremental. After the initial snapshot, only the changed data blocks are stored in subsequent snapshots.
+- **Data Restoration:** When restoring a volume from a snapshot, the new volume will be an exact replica of the original volume at the time the snapshot was taken.
+- **Cross-Region and Cross-Account Sharing:** EBS snapshots can be copied across regions and shared between AWS accounts, facilitating data migration and disaster recovery strategies.
+- **Cost Considerations:** Since snapshots are stored incrementally, they are cost-effective. However, it's essential to manage and delete unnecessary snapshots to avoid accruing storage costs.
+</details>
+
+<details>
+<summary>EBS volume types</summary>
+**1. General Purpose SSD (gp2) and (gp3)**
+- **Use Case:** boot volumes, virtual desktops, dev and test environments.
+**2. Provisioned IOPS SSD (io1) and (io2)**
+- **Use Case:** critical business applications, large databases, I/O-intensive workloads.
+
+**3. Throughput Optimized HDD Hard Disk Drive **
+- **Use Case:** big data, data warehousing, log processing.
+</details>
+
+
+<details>
+<summary> Q. what is multi attach feature ?</summary>
+**Multi-Attach:** Allows a single EBS volume to be attached to multiple EC2 instances within the same AZ. <br>
+each instance can read and write data to the volume simultaneously. <br>
+**Use Cases:** Shared file systems, clustered databases, and applications requiring high availability. <br>
+
+**Key Points:**
+application  must be designed to handle concurrent writes to the volume.
+-upto 16 instances can be attached to a single volume.
+</details>
+
+<details>
+<summary>Q. Explain EC2 instance store</summary>
+
+**Better IO performance**  
+If an EC2 instance store stops or terminates, data is lost.
+
+- **Best for:** Buffer, cache, scratch data, temporary content
+- **Ideal for:** Low latency, high performance applications
+
+**Example Use Case:**  
+A machine learning job processing large datasets where temporary storage is needed to handle intermediate data and the results are later saved to persistent storage (like EBS or S3).
+
+**Exam Tips:**
+
+- **Ephemeral Nature:** EC2 Instance Store is temporary and not persistent. Data is lost when the instance is stopped or terminated, so it should only be used for non-critical, transient data.
+- **Not All Instance Types Support It:** Not all EC2 instance types come with instance store volumes. You must select instance types that provide instance store support (e.g., i3, d2, r5d).
+- **Cost-effective for Temporary Storage:** Instance stores are typically more cost-effective for workloads needing high-throughput but not requiring data persistence.
+- **Common Mistake:** Confusing instance store with persistent storage options like EBS or S3. Instance store is only suitable for ephemeral storage needs.
+</details>
+
+
+<details>
+<summary>Q. what is Amazon EFS- Elastic file system</summary>
+Its a managed NFS (Network File System) that can be shared across thousands of EC2 instances. <br>
+**Use Cases:** Content management, web serving, data sharing, and container storage. <br>
+**Key Features:** Scalable, elastic, highly available, and durable. <br>
+uses security groups to control access to the file system. <br>
+only for linux based instances. not windows. For windows there is separate file system by AWS  <br>
+Amazing thing is we do not need to do capacity planning. it scales automatically. (its one of the option and recommended option <br>
+</details>
+
+
+
+<details>
+<summary>Q. EFS vs EBS, use case and exam tips</summary>
+
+**Example Use Case:**
+
+**EFS:**
+- Used for applications like content management systems (CMS), big data analytics, or media workflows where multiple EC2 instances need concurrent access to the same data.
+- **Example:** A web application with several EC2 instances running web servers that need access to shared media files, such as images or videos.
+
+**EBS:**
+- Ideal for applications needing persistent block storage that is attached to a single instance, such as a database or transactional systems.
+- **Example:** A database hosted on EC2, where the data must be persistent and only needs to be accessed by one EC2 instance at a time.
+
+**Exam Tips:**
+
+**EFS Key Points:**
+- Shared file storage for multiple EC2 instances.
+- Uses NFS protocol and supports Linux-based instances.
+- Automatically scales as data grows.
+- Ideal for distributed applications and content sharing across EC2 instances.
+
+**EBS Key Points:**
+- Block storage that can be attached to a single EC2 instance.
+- Ideal for databases, transactional applications, or any workloads requiring persistent storage.
+- EBS volumes persist even when the EC2 instance is stopped, unlike EFS, which supports multiple simultaneous mounts.
+
+**Common Mistakes:**
+- **EFS vs. EBS for shared access:** EFS is the right choice for shared data access across multiple instances. EBS is not designed for multiple instances.
+- **Mounting EBS on multiple instances:** EBS volumes can only be mounted on one EC2 instance at a time (except for EBS Multi-Attach, which has limited support).
+</details>
+
+
+
+<details>
+<summary></summary>
+</details>
+
+
+
+
+*****************
+TEST - IGNORE BELOW FOR NOW
+<details>
+  <summary>Q. What is the ENI and what are the types of ENI?</summary>
   It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br>
   You can create multiple ENIs and attach them to different instances **on the fly**. <br>
   <code style="color: orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
 </details>
 
+
+
+Questions to answer later
+Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
