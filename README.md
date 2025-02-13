@@ -6,7 +6,8 @@ Sharing my learnings and notes while I prepare for the exam.
 1. <a href="#introduction">Introduction</a>
 2. <a href="#identity-access-management-iam">Identity Access Management (IAM)</a>
 3. <a href="#EC2">Elastic Cloud Compute EC2</a>
-4. <a href="#EC2">EBS volume</a>
+4. <a href="#EBS-volume">EBS volume</a>
+5. <a href="#High-Availability-and-Scalability-ELB-and-ASG">High Availability and Scalability ELB and ASG</a>
 
 
 ## Introduction
@@ -263,11 +264,13 @@ what is use of hibernation ? <br>
 
 ## EBS volume
 <details>
-<summary> Q. what is EBS volume and its use. </summary>
-<summary>What is EBS volume and its use?</summary>
-EBS volumes are like USB sticks for EC2, providing persistent block storage. They remain intact even after the associated EC2 instance is terminated. EBS volumes can be dynamically attached to or detached from EC2 instances, allowing for flexible storage management. <br>
+<summary>Q: What is EBS volume and its use?</summary>
+
+**EBS volumes** are like USB sticks for EC2, providing persistent block storage. They remain intact even after the associated EC2 instance is terminated. EBS volumes can be dynamically attached to or detached from EC2 instances, allowing for flexible storage management.
+
 - **Per AZ:** EBS volumes are specific to an Availability Zone.
-- **Attachment:** Can be mounted to multiple EC2 instances but attached to only one instance at a time. <br>
+- **Attachment:** Can be mounted to multiple EC2 instances but attached to only one instance at a time.
+
 ### Exam Tips:
 - **Incremental Nature of Snapshots:** Understand that EBS snapshots are incremental. After the initial snapshot, only the changed data blocks are stored in subsequent snapshots.
 - **Data Restoration:** When restoring a volume from a snapshot, the new volume will be an exact replica of the original volume at the time the snapshot was taken.
@@ -277,25 +280,38 @@ EBS volumes are like USB sticks for EC2, providing persistent block storage. The
 
 <details>
 <summary>EBS volume types</summary>
-**1. General Purpose SSD (gp2) and (gp3)**
-- **Use Case:** boot volumes, virtual desktops, dev and test environments.
-**2. Provisioned IOPS SSD (io1) and (io2)**
-- **Use Case:** critical business applications, large databases, I/O-intensive workloads.
 
-**3. Throughput Optimized HDD Hard Disk Drive **
-- **Use Case:** big data, data warehousing, log processing.
+**1. General Purpose SSD (gp2) and (gp3)**
+- **Use Case:** Boot volumes, virtual desktops, dev and test environments.
+
+**2. Provisioned IOPS SSD (io1) and (io2)**
+- **Use Case:** Critical business applications, large databases, I/O-intensive workloads.
+
+**3. Throughput Optimized HDD (st1)**
+- **Use Case:** Big data, data warehousing, log processing.
+
+**4. Cold HDD (sc1)**
+- **Use Case:** Infrequently accessed data, lower cost storage.
+
+**5. Magnetic (standard)**
+- **Use Case:** Previous generation, low-cost storage for infrequently accessed data.
 </details>
 
 
 <details>
-<summary> Q. what is multi attach feature ?</summary>
-**Multi-Attach:** Allows a single EBS volume to be attached to multiple EC2 instances within the same AZ. <br>
-each instance can read and write data to the volume simultaneously. <br>
-**Use Cases:** Shared file systems, clustered databases, and applications requiring high availability. <br>
+<summary>Q: What is the multi-attach feature?</summary>
+
+**Multi-Attach:** Allows a single EBS volume to be attached to multiple EC2 instances within the same AZ. Each instance can read and write data to the volume simultaneously.
+
+**Use Cases:**
+- Shared file systems
+- Clustered databases
+- Applications requiring high availability
 
 **Key Points:**
-application  must be designed to handle concurrent writes to the volume.
--upto 16 instances can be attached to a single volume.
+- Application must be designed to handle concurrent writes to the volume.
+- Up to 16 instances can be attached to a single volume.
+
 </details>
 
 <details>
@@ -379,10 +395,29 @@ Amazing thing is we do not need to do capacity planning. it scales automatically
 Answer: No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. AMIs are unique to each AWS Region.  Solution: You can copy the AMI to the target AWS Region and then use it to create your EC2 instances.
 </details>
 
+## High Availability and Scalability ELB and ASG
+<details>
+<summary>what is scale-up and scale-down and scale-out and scale-in means ?</summary>
+
+Scalability: The ability to increase or decrease resources based on demand. <br>
+vertical scaling is scale-up and horizontal scaling is scale-out. <br>
+Scale-up: Increasing the size of an instance (e.g., upgrading from t2.micro to t2.large). <br>
+Scale-down: Decreasing the size of an instance (e.g., downgrading from m5.xlarge to t3.medium). <br>
+Scale-out: Adding more instances to distribute the load. <br>
+Scale-in: Removing instances to reduce the load. <br>
+</details>
+
 
 <details>
-<summary>Q. Tell me steps for encrypting an existing EBS volume ?</summary>
+<summary>Q. what are the types of the load balancer?</summary>
+Load Balancer : it's a service that distributes incoming application or network traffic across multiple targets, such as EC2 instances, containers, and IP addresses, in multiple Availability Zones. <br>
+-its per region service. <br>
 
+4 types of load balancer : <br>
+1. Application Load Balancer (ALB) : Layer 7, HTTP/HTTPS, intelligent routing, and microservices. <br>
+2. Network Load Balancer (NLB) : Layer 4, TCP/UDP, high performance, and static IP. <br>
+3. Gateway Load Balancer : Deploy, scale, and manage third-party virtual appliances. <br>
+4. Classic Load Balancer : Legacy, Layer 4/7, HTTP/HTTPS, and TCP. <br>
 </details>
 
 
@@ -391,20 +426,7 @@ Answer: No, you cannot directly launch an EC2 instance using an AMI from another
 </details>
 
 
-<details>
-<summary></summary>
-</details>
-
-*****************
-TEST - IGNORE BELOW FOR NOW
-<details>
-  <summary>Q. What is the ENI and what are the types of ENI?</summary>
-  It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br>
-  You can create multiple ENIs and attach them to different instances **on the fly**. <br>
-  <code style="color: orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
-</details>
 
 
-
-Questions to answer later
+Questions to answer later <br>
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
