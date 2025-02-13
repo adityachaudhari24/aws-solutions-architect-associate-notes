@@ -6,7 +6,7 @@ Sharing my learnings and notes while I prepare for the exam.
 1. <a href="#introduction">Introduction</a>
 2. <a href="#identity-access-management-iam">Identity Access Management (IAM)</a>
 3. <a href="#EC2">Elastic Cloud Compute EC2</a>
-4<a href="#EC2">EBS volume</a>
+4. <a href="#EC2">EBS volume</a>
 
 
 ## Introduction
@@ -14,7 +14,7 @@ TODO
 
 ## Identity Access Management (IAM)
 <details>
-<summary> Q: what is Users, Groups, Roles, and Policies? </summary>
+<summary> Q: what is Users, Groups, Roles, and Policies? IMP - remember role is HAT/CAP which can be put on group or users</summary>
 
 Users: Assigned credentials (username/password, access keys). <br>
 Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
