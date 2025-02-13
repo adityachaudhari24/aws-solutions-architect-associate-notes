@@ -218,7 +218,7 @@ This is the summary block
 #### Q: what is the ENI and what are the types of ENI?
 It's a logical networking component in a VPC that represents a virtual network card. It can be attached to an EC2 instance in the same AZ. <br> 
 You can create multiple ENIs and attach them to different instances **on the fly**. <br>
-<span style="color:orange">Bound to specific AZ, cannot be moved to another AZ.</span> <br>
+<code style="color:orange">Bound to specific AZ, cannot be moved to another AZ.</code> <br>
 
 #### EC2 notes
 **ENI (Elastic Network Interface):** This is for only specific AZ cannot be moved to another AZ. <br>
