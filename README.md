@@ -443,9 +443,88 @@ Types of load balancer (4 types):
 <details>
 <summary>🎯Q. what is Sticky Sessions(Session Affinity) </summary>
 Sticky Sessions (Session Affinity): Ensures that a client's requests are always directed to the same target. <br>
-2 types
-- Load balancer-generated cookie: The load balancer generates a cookie to track the session. <br>
-- Application-generated cookie: The application generates a cookie to track the session. <br>
+2 types <br>
+    - Load balancer-generated cookie: The load balancer generates a cookie to track the session. <br>
+    - Application-generated cookie: The application generates a cookie to track the session. <br>
+</details>
+
+<details>
+<summary>🎯Q. what is cross zone balancing ? </summary>
+Cross-Zone Load Balancing is a feature of AWS Elastic Load Balancers (ELBs) that distributes incoming traffic ⭐evenly⭐ across all registered instances in all Availability Zones (AZs) within a region. 
+This ensures that no single AZ is overwhelmed with traffic while others remain underutilized. <br>
+Know that cross-zone load balancing is ⭐enabled by default for Application Load Balancers but needs to be manually enabled for Network Load Balancers.⭐
+</details>
+
+
+<details>
+<summary>🎯🔥Q. what is Auto Scaling group? what are scaling policies ?</summary>
+
+**Definition:** Is a service that automatically adjusts the number of instances in a group based on demand or a predefined schedule. <br>
+- **Scale-out:** Increase the number of instances based on demand. <br>
+- **Scale-in:** Decrease the number of instances based on demand. <br>
+- **Automatically replaces unhealthy instances** and also registers new instances to the load balancer.
+- Minimum capacity : always running instances
+- Desired capacity : Target number of instances
+- Maximum capacity : Maximum number of instances that can be running. <br>
+
+<details>
+<summary>Example scenarios to understand desired capacity below</summary>
+Example Scenario 1: E-commerce Website
+
+Minimum Capacity: 3 instances
+Maximum Capacity: 10 instances
+Desired Capacity: 5 instances
+Explanation:
+
+The ASG will always keep at least 3 instances running to handle basic traffic.
+It can scale up to a maximum of 10 instances if needed.
+The ASG aims to maintain 5 instances under normal load. If traffic increases, it might scale out to 7 or 8 instances until the load decreases, at which point it will scale back down to 5.
+Example Scenario 2: Seasonal Application
+
+Minimum Capacity: 2 instances
+Maximum Capacity: 15 instances
+Desired Capacity: 10 instances
+Explanation:
+
+During peak season, the application typically needs 10 instances to handle traffic.
+The ASG starts with 2 instances running (minimum).
+As traffic increases, it scales up to reach the desired capacity of 10. If traffic spikes even more, it can scale up to the maximum of 15 instances.
+Example Scenario 3: Fluctuating Workload
+
+Minimum Capacity: 1 instance
+Maximum Capacity: 5 instances
+Desired Capacity: 1 instance
+Explanation:
+
+The application has low traffic most of the time, so it starts with a desired capacity of 1 instance.
+If traffic increases, the ASG can scale up to 5 instances if needed, but it will try to maintain 1 instance during low traffic periods.
+If traffic drops, it will scale down to the minimum of 1 instance.
+Key Takeaway
+
+Desired Capacity is the target number of instances the ASG tries to maintain based on current load. It can change dynamically based on traffic, but it will always respect the minimum and maximum capacities set for the ASG.
+</details>
+
+**Understand scaling policies:** ⭐
+- **Target Tracking:** Automatically adjusts the number of instances to maintain a target metric (e.g., CPU utilization).
+- **Step Scaling:** Scales based on predefined thresholds (e.g., scale out if CPU > 70%).
+- **Simple Scaling:** Manually adjusts the number of instances based on a single scaling adjustment.
+- **Scheduled Scaling:** Scales based on a schedule (e.g., scale out during peak hours, specify the time).
+
+**Exam Tips:** ⭐
+- `Understand Scaling Policies`: Focus on Target Tracking and Step Scaling, as they are commonly tested.
+- `Multi-AZ Deployment`: Always configure ASGs across multiple Availability Zones (AZs) for high availability.
+- `Health Checks`: Ensure ASG integrates with Elastic Load Balancer (ELB) health checks for instance health monitoring.
+
+**Common Mistakes:** ⚠️
+- Not Defining Minimum/Maximum Capacity: Failing to set these can lead to excessive costs or insufficient resources.
+- Ignoring Cooldown Periods: Not configuring cooldown periods can result in rapid scaling actions, causing instability.
+- ⭐Overlooking Instance Termination Policies⭐: Not setting termination policies can lead to unintended instance removal. <br>
+  ⭐Termination policies determine which instances to terminate when scaling in (removing instances) in an Auto Scaling Group. here are common termination policies:⭐
+  - Default Policy: AWS chooses the instance with the oldest launch configuration or template.
+  - Newest Instances: Prioritizes terminating the most recently launched instances.
+  - Lowest Cost: Chooses instances based on cost metrics, such as Spot Instances.
+  - Health Status: Terminates unhealthy instances first.
+  - Availability Zone Balance: Ensures balanced instance distribution across Availability Zones.
 </details>
 
 <details>
@@ -458,8 +537,6 @@ Target Groups : group of instances together is one target group  <br>
  - can be IP addresses (must be private IP addresses)
 
 Auto Scaling Group : group of instances that are managed by the auto scaling service. <br>
- 
-
 </details>
 
 
@@ -467,6 +544,7 @@ Auto Scaling Group : group of instances that are managed by the auto scaling ser
 
 Questions to answer later <br>
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
+Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
 
 
 
@@ -476,5 +554,29 @@ Emojis used
 💡 - For key concepts/tips
 ⚠️ - For warnings/common mistake
 🎯 - For exam targets/focus areas/ question 
-🚀 - For advanced topics ..
+🚀 - For advanced topics .
 
+
+<details>
+<summary>🎯Q. Template 1 </summary>
+</details>
+
+<details>
+<summary>🎯🔥Q. Template 2 </summary>
+
+**Definition:**
+
+**Key Features:**
+- Point 1
+- Point 2
+
+**Exam Tips:** ⭐
+- Important point 1
+- Important point 2
+
+**Common Mistakes:** ⚠️
+- Mistake 1
+- Mistake 2
+
+
+</details>
