@@ -528,15 +528,22 @@ Desired Capacity is the target number of instances the ASG tries to maintain bas
 </details>
 
 <details>
-<summary>Q. Load Balancer, Target Group and AUto Scaling Group what they are and relation between them </summary>
-Load Balancer : distributes the incoming traffic across multiple targets(target groups) <br>
-Target Groups : group of instances together is one target group  <br>
- - can be EC2 instances
- - can be ECS tasks 
- - can be lambda functions
- - can be IP addresses (must be private IP addresses)
+<summary>🎯🔥 Q. Load Balancer, Target Group and Auto Scaling Group how they are related to each other? </summary>
+`Load Balancer (LB)`: Distributes incoming traffic across multiple targets (e.g., EC2 instances).
+`Target Group (TG)`: Routes requests to registered targets (instances/lambda) via rules. LB directs traffic to TGs.
+`Auto Scaling Group (ASG)`: Automatically adjusts EC2 capacity based on demand. Launches/terminates instances.
+ ⭐`Relation` ⭐: ASG scales instances, registers them to a TG, and LB routes traffic to the TG.
 
-Auto Scaling Group : group of instances that are managed by the auto scaling service. <br>
+⭐ Exam Tips: ⭐
+- ASG + LB = High availability + scalability.
+- Target Groups decouple LB from instances (e.g., LB can route to different TGs).
+- Scaling policies prioritize ⭐Desired first⭐, then adjust within min/max. This means that the ASG will always try to maintain the Desired Capacity, but it can scale up to the Maximum Capacity if needed.
+
+
+Common Mistakes: ⚠️
+- Forgetting to link ASG to a TG (traffic won’t reach scaled instances). - ⭐means ASG should be linked to TG and TG should be linked to LB⭐.
+- Setting min ≥ max or desired outside min/max range.
+- Confusing LB health checks (for traffic routing) with ASG health checks (for instance replacement).- means ⭐LB health checks are for routing traffic and ASG health checks are for instance replacement.⭐
 </details>
 
 
