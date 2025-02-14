@@ -420,7 +420,7 @@ Scale-in: Removing instances to reduce the load. <br>
 
 
 <details>
-<summary>Q. what are the types of the load balancer?</summary>
+<summary>🎯 Q. what are the types of the load balancer?</summary>
 Load Balancer : it's a service that distributes incoming application or network traffic across multiple targets, such as EC2 instances, containers, and IP addresses, in multiple Availability Zones. <br>
 -its per region service. <br>
 
@@ -428,15 +428,25 @@ Types of load balancer (4 types):
 1. Application Load Balancer (ALB) : Layer 7, HTTP/HTTPS, intelligent routing, and microservices.
    - supports HTTP2 and websocket. 
    -  routing to different target groups based on URL, hostname and query string headers
-   - supports containerized applications and microservices. 
+   - `supports containerized applications and microservices`
 2. Network Load Balancer (NLB) : Layer 4, TCP/UDP, high performance, and static IP. <br>
     - Forward TCP and UDP traffic to your instances.
     - handle millions of requests per second.
-    - **`NLP has one static IP per AZ and supports assigning Elastic IP address`**
+    - ⭐ **`NLP has one static IP per AZ and supports assigning Elastic IP address`**
+    - Target groups can be EC2 instances, IP addresses (must be private) and ⭐Application Load Balancers.
 3. Gateway Load Balancer : Deploy, scale, and manage third-party virtual appliances. <br>
+    - Deploy, scale, and manage third-party virtual appliances such as firewalls, intrusion detection and prevention systems, and deep packet inspection systems in the cloud.
+    - Uses the GENEVE on port 6081 protocol to encapsulate and forward traffic to virtual appliances.
 4. Classic Load Balancer : Legacy, Layer 4/7, HTTP/HTTPS, and TCP. <br>
 </details>
 
+<details>
+<summary>🎯Q. what is Sticky Sessions(Session Affinity) </summary>
+Sticky Sessions (Session Affinity): Ensures that a client's requests are always directed to the same target. <br>
+2 types
+- Load balancer-generated cookie: The load balancer generates a cookie to track the session. <br>
+- Application-generated cookie: The application generates a cookie to track the session. <br>
+</details>
 
 <details>
 <summary>Q. Load Balancer, Target Group and AUto Scaling Group what they are and relation between them </summary>
@@ -457,3 +467,14 @@ Auto Scaling Group : group of instances that are managed by the auto scaling ser
 
 Questions to answer later <br>
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
+
+
+
+Emojis used
+⭐ - For important points
+🔥 - For hot/important exam topics
+💡 - For key concepts/tips
+⚠️ - For warnings/common mistake
+🎯 - For exam targets/focus areas/ question 
+🚀 - For advanced topics ..
+
