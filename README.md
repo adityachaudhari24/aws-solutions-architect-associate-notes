@@ -426,10 +426,13 @@ Load Balancer : it's a service that distributes incoming application or network 
 
 Types of load balancer (4 types):
 1. Application Load Balancer (ALB) : Layer 7, HTTP/HTTPS, intelligent routing, and microservices.
- - supports HTTP2 and websocket. 
- -  routing to different target groups based on URL, hostname and query string headers
- - supports containerized applications and microservices. 
+   - supports HTTP2 and websocket. 
+   -  routing to different target groups based on URL, hostname and query string headers
+   - supports containerized applications and microservices. 
 2. Network Load Balancer (NLB) : Layer 4, TCP/UDP, high performance, and static IP. <br>
+    - Forward TCP and UDP traffic to your instances.
+    - handle millions of requests per second.
+    - **`NLP has one static IP per AZ and supports assigning Elastic IP address`**
 3. Gateway Load Balancer : Deploy, scale, and manage third-party virtual appliances. <br>
 4. Classic Load Balancer : Legacy, Layer 4/7, HTTP/HTTPS, and TCP. <br>
 </details>
