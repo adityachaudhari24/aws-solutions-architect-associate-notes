@@ -405,13 +405,14 @@ A machine learning job processing large datasets where temporary storage is need
 </details>
 
 ## High Availability and Scalability ELB and ASG
--> High Availability (HA) ensures your application remains operational even if components fail,
--> Scalability ensures your application can handle increased load by adding resources.
+- High Availability (HA) ensures your application remains operational even if components fail,
+- Scalability ensures your application can handle increased load by adding resources.
 
 <details>
 <summary>what is scale-up and scale-down and scale-out and scale-in means ?</summary>
-Scalability: The ability to increase or decrease resources based on demand. <br>
-vertical scaling is scale-up and horizontal scaling is scale-out. <br>
+This is a key concept in cloud computing and is often tested in the exam.
+`Scalability`: The ability to increase or decrease resources based on demand. <br>
+`vertical scaling is scale-up and horizontal scaling is scale-out`. <br>
 Scale-up: Increasing the size of an instance (e.g., upgrading from t2.micro to t2.large). <br>
 Scale-down: Decreasing the size of an instance (e.g., downgrading from m5.xlarge to t3.medium). <br>
 Scale-out: Adding more instances to distribute the load. <br>
