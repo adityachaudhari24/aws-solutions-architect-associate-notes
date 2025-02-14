@@ -1,6 +1,4 @@
 # AWS Solutions Architect Associate Notes
-Sharing my learnings and notes while I prepare for the exam.
-
 
 ## Table of Contents
 1. <a href="#introduction">Introduction</a>
@@ -336,22 +334,29 @@ A machine learning job processing large datasets where temporary storage is need
 
 
 <details>
-<summary>Q. what is Amazon EFS- Elastic file system</summary>
-Its a managed NFS (Network File System) that can be shared across thousands of EC2 instances. <br>
-**Use Cases:** Content management, web serving, data sharing, and container storage. <br>
-**Key Features:** Scalable, elastic, highly available, and durable. <br>
-uses security groups to control access to the file system. <br>
-only for linux based instances. not windows. For windows there is separate file system by AWS  <br>
-Amazing thing is we do not need to do capacity planning. it scales automatically. (its one of the option and recommended option <br>
+<summary>Q: What is Amazon EFS - Elastic File System?</summary>
+
+**Amazon EFS** is a managed NFS (Network File System) that can be shared across thousands of EC2 instances.
+
+**Use Cases:**
+- Content management
+- Web serving
+- Data sharing
+- Container storage
+
+**Key Features:**
+- Scalable, elastic, highly available, and durable
+- Uses security groups to control access to the file system
+- Only for Linux-based instances (for Windows, there is a separate file system by AWS)
+- No need for capacity planning as it scales automatically (recommended option)
+
 </details>
 
 
 
 <details>
 <summary>Q. EFS vs EBS, use case and exam tips</summary>
-
 **Example Use Case:**
-
 **EFS:**
 - Used for applications like content management systems (CMS), big data analytics, or media workflows where multiple EC2 instances need concurrent access to the same data.
 - **Example:** A web application with several EC2 instances running web servers that need access to shared media files, such as images or videos.
@@ -381,6 +386,7 @@ Amazing thing is we do not need to do capacity planning. it scales automatically
 
 <details>
 <summary>Q: Why is the "Delete On Termination" attribute enabled by default for the root volume but disabled for other EBS volumes?</summary>
+
 **Root Volume:**
 - **Reason:** The root volume contains the operating system and is essential for the instance to boot. When an instance is terminated, it is often desirable to delete the root volume to avoid unnecessary storage costs and to ensure that the instance is completely removed.
 - **Default Behavior:** Enabled by default to automatically clean up the root volume when the instance is terminated.
@@ -391,14 +397,19 @@ Amazing thing is we do not need to do capacity planning. it scales automatically
 </details>
 
 <details>
-<summary>Can you launch an EC2 instance using an AMI from another AWS Region?</summary>
-Answer: No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. AMIs are unique to each AWS Region.  Solution: You can copy the AMI to the target AWS Region and then use it to create your EC2 instances.
+<summary>Q: Can you launch an EC2 instance using an AMI from another AWS Region?</summary>
+
+**Answer:** No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. AMIs are unique to each AWS Region.
+
+**Solution:** You can copy the AMI to the target AWS Region and then use it to create your EC2 instances.
 </details>
 
 ## High Availability and Scalability ELB and ASG
+-> High Availability (HA) ensures your application remains operational even if components fail,
+-> Scalability ensures your application can handle increased load by adding resources.
+
 <details>
 <summary>what is scale-up and scale-down and scale-out and scale-in means ?</summary>
-
 Scalability: The ability to increase or decrease resources based on demand. <br>
 vertical scaling is scale-up and horizontal scaling is scale-out. <br>
 Scale-up: Increasing the size of an instance (e.g., upgrading from t2.micro to t2.large). <br>
@@ -413,8 +424,11 @@ Scale-in: Removing instances to reduce the load. <br>
 Load Balancer : it's a service that distributes incoming application or network traffic across multiple targets, such as EC2 instances, containers, and IP addresses, in multiple Availability Zones. <br>
 -its per region service. <br>
 
-4 types of load balancer : <br>
-1. Application Load Balancer (ALB) : Layer 7, HTTP/HTTPS, intelligent routing, and microservices. <br>
+Types of load balancer (4 types):
+1. Application Load Balancer (ALB) : Layer 7, HTTP/HTTPS, intelligent routing, and microservices.
+ - supports HTTP2 and websocket. 
+ -  routing to different target groups based on URL, hostname and query string headers
+ - supports containerized applications and microservices. 
 2. Network Load Balancer (NLB) : Layer 4, TCP/UDP, high performance, and static IP. <br>
 3. Gateway Load Balancer : Deploy, scale, and manage third-party virtual appliances. <br>
 4. Classic Load Balancer : Legacy, Layer 4/7, HTTP/HTTPS, and TCP. <br>
@@ -422,7 +436,17 @@ Load Balancer : it's a service that distributes incoming application or network 
 
 
 <details>
-<summary></summary>
+<summary>Q. Load Balancer, Target Group and AUto Scaling Group what they are and relation between them </summary>
+Load Balancer : distributes the incoming traffic across multiple targets(target groups) <br>
+Target Groups : group of instances together is one target group  <br>
+ - can be EC2 instances
+ - can be ECS tasks 
+ - can be lambda functions
+ - can be IP addresses (must be private IP addresses)
+
+Auto Scaling Group : group of instances that are managed by the auto scaling service. <br>
+ 
+
 </details>
 
 
