@@ -1,11 +1,19 @@
 # AWS Solutions Architect Associate Notes
 
+Study material
+1. exam guide : https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf
+2. Stefan Marek's AWS Certified Solutions Architect Associate course on Udemy
+3. AWS Skill builder.
+4. Whizlabs AWS Certified Solutions Architect Associate tests
+5. AWS whitepapers and website documentation.
+
 ## Table of Contents
 1. <a href="#introduction">Introduction</a>
 2. <a href="#identity-access-management-iam">Identity Access Management (IAM)</a>
 3. <a href="#EC2">Elastic Cloud Compute EC2</a>
 4. <a href="#EBS-volume">EBS volume</a>
 5. <a href="#High-Availability-and-Scalability-ELB-and-ASG">High Availability and Scalability ELB and ASG</a>
+6. <a href="#RDS-Aurora-ElastiCache">RDS Aurora ElastiCache</a>
 
 
 ## Introduction
@@ -564,6 +572,59 @@ Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things 
 
 
 
+## RDS Aurora ElastiCache
+<details>
+<summary>🎯Q. What are advantages of using RDS(relational database service) instead DB in the EC2 ?</summary>
+
+- it's a managed service which provides automated provisioning, backups, patching, monitoring, and scaling of databases.
+- provides multi-AZ setup for Disaster Recovery.
+- it's a managed service which provides automated provisioning, backups, patching, monitoring, and scaling of databases.
+- provides multi-AZ setup for Disaster Recovery.
+- automated backups with point-in-time recovery (up to 35 days).
+- monitoring dashboards with CloudWatch.
+- storage backed by EBS (gp2 or io1).
+- cannot SSH into RDS instances (managed service).
+</details>
+
+
+<details>
+<summary>🎯🔥Q. Difference between read replica and RDS Multi AZ in RDS? (very important feature)</summary>
+
+- `Read Replica`: ⭐Asynchronous copy⭐ for scaling read workloads; can be in same/different regions; manual promotion to standalone.
+- `Multi-AZ`: ⭐Synchronous replication⭐ to a standby in another AZ for high availability; automatic failover during outages.
+  Exam Tips: ⭐
+
+**Read Replica:**
+- Used for read scaling, not for high availability.
+- Can have multiple read replicas (up to 5 for MySQL, PostgreSQL, MariaDB).
+- Can be promoted to a standalone database, but this breaks the replication.
+- Does not support automatic failover.
+
+**Multi-AZ:**
+- Used for high availability and disaster recovery.
+- Only one standby replica in a different AZ.
+- Supports automatic failover with minimal downtime (1-2 minutes).
+- Synchronous replication ensures zero data loss.
+
+**Key Differences:**
+- **Read Replica:** Async replication, used for read scaling.
+- **Multi-AZ:** Sync replication, used for failover and high availability.
+
+
+**Common Mistakes:** ⚠️
+- Assuming Read Replica provides high availability (it does not; it's for read scaling).
+- Thinking Multi-AZ improves read performance (it does not; it's for failover only).
+- 🔥 Forgetting that Read Replica can be in a different region, while Multi-AZ is within the same region.
+
+**Real-World Example:**
+A news website uses Read Replicas to handle heavy read traffic from users browsing articles.
+They also use Multi-AZ to ensure the database remains available during AZ outages or maintenance.
+</details>
+
+
+
+
+********************************************* IGNORE BELOW THIS LINE *********************************************
 <details>
 Emojis used
 ⭐ - For important points
@@ -573,7 +634,6 @@ Emojis used
 🎯 - For exam targets/focus areas/ question 
 🚀 - For advanced topics .
 🚫 - For indicating something that cannot be used or a concerning point
-
 </details>
 
 
