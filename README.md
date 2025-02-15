@@ -530,10 +530,11 @@ Desired Capacity is the target number of instances the ASG tries to maintain bas
 
 <details>
 <summary>🎯🔥 Q. Load Balancer, Target Group and Auto Scaling Group how they are related to each other? </summary>
+
 `Load Balancer (LB)`: Distributes incoming traffic across multiple targets (e.g., EC2 instances).
 `Target Group (TG)`: Routes requests to registered targets (instances/lambda) via rules. LB directs traffic to TGs.
 `Auto Scaling Group (ASG)`: Automatically adjusts EC2 capacity based on demand. Launches/terminates instances.
- ⭐`Relation` ⭐: ASG scales instances, registers them to a TG, and LB routes traffic to the TG.
+ ⭐`Relation` ⭐: ASG scales instances, registers them to a TG, and LB routes traffic to the TG.<br>
 
 ⭐ Exam Tips: ⭐
 - ASG + LB = High availability + scalability.
@@ -548,14 +549,22 @@ Common Mistakes: ⚠️
 </details>
 
 
+🎯 ⭐One liners notes⭐ 🎯
+- Only Network Load Balancer provides both ⭐static DNS name and static IP⭐. While, Application Load Balancer provides a static DNS name, but it does NOT provide a static IP 🚫or even also not provide a way to attach elastic IP.🚫
+- To get the client's IP address to application code, ALB adds an `X-Forwarded-For header` to the request., `X-forarded-port`-for client's port number, `X-forarded-proto`-for client's protocol.
+- `network load balancer` cannot be a target in target groups however `application load balancer` can be a target in target groups.
+- Server Name Indication (SNI) allows you to expose multiple HTTPS applications each with its own SSL certificate on the same listener.
+- ⭐You can configure the Auto Scaling Group to determine the EC2 instance's health based on Application Load Balancer Health Checks instead of EC2 Status Checks (default)⭐. When an EC2 instance fails the ALB Health Checks, it is marked unhealthy and will be terminated while the ASG launches a new EC2 instance.
+- The NLB supports HTTP health checks as well as TCP and HTTPS
 
-
-Questions to answer later <br>
+🚀 - Questions to answer later <br>
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
 Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
 
 
 
+
+<details>
 Emojis used
 ⭐ - For important points
 🔥 - For hot/important exam topics
@@ -563,6 +572,9 @@ Emojis used
 ⚠️ - For warnings/common mistake
 🎯 - For exam targets/focus areas/ question 
 🚀 - For advanced topics .
+🚫 - For indicating something that cannot be used or a concerning point
+
+</details>
 
 
 <details>
