@@ -565,12 +565,6 @@ Common Mistakes: ⚠️
 - ⭐You can configure the Auto Scaling Group to determine the EC2 instance's health based on Application Load Balancer Health Checks instead of EC2 Status Checks (default)⭐. When an EC2 instance fails the ALB Health Checks, it is marked unhealthy and will be terminated while the ASG launches a new EC2 instance.
 - The NLB supports HTTP health checks as well as TCP and HTTPS
 
-🚀 - Questions to answer later <br>
-Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
-Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
-
-
-
 
 ## RDS Aurora ElastiCache
 <details>
@@ -610,7 +604,6 @@ Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things 
 - **Read Replica:** Async replication, used for read scaling.
 - **Multi-AZ:** Sync replication, used for failover and high availability.
 
-
 **Common Mistakes:** ⚠️
 - Assuming Read Replica provides high availability (it does not; it's for read scaling).
 - Thinking Multi-AZ improves read performance (it does not; it's for failover only).
@@ -623,8 +616,147 @@ They also use Multi-AZ to ensure the database remains available during AZ outage
 
 
 
+<details>
+<summary>🎯Q. Amazon Aurora </summary>
 
-********************************************* IGNORE BELOW THIS LINE *********************************************
+- `Amazon Aurora` Amazon Aurora is a fully managed, MySQL/PostgreSQL-compatible relational database engine optimized for the cloud.
+- offers upto 5 times better performance than MySQL and 3 times better performance than PostgreSQL.
+- 6 copies of data across 3 AZs.
+- `Writer endpoint` : This is the endpoint that you use for write operations.
+- `Reader endpoint` : This is the endpoint that you use for read operations.
+- custom endpoints can be created for specific use cases. Example : reporting endpoint.
+- `Aurora Serverless` : automatically scales up or down based on the application's needs.
+- `Global aurora` : allows to replicate data across multiple regions.
+- `Aurora machine learning` : allows to integrate machine learning models with the database.
+- `Aurora Backtrack` : allows to rewind the database to a specific point in time without using backups.
+
+⭐Simple real-world example: ⭐
+An e-commerce platform uses Aurora for its transaction database. Aurora’s automatic scaling (up to 128 TiB) handles Black Friday traffic spikes, while Multi-AZ deployments and read replicas ensure high availability. Backtracking fixes accidental data deletions, and Aurora Serverless manages unpredictable workloads during flash sales.
+
+⭐Exam Tips: ⭐
+- `Replicas`: Aurora supports up to 15 read replicas (vs. RDS’s 5), and replicas can be promoted to primary in seconds.
+- `Storage`: Auto-scaling storage (10 GB increments up to 128 TiB) with 6-way replication across 3 AZs for durability.
+- `Serverless`: Use Aurora Serverless for intermittent/unpredictable workloads (e.g., dev/test environments).
+- `Backtracking`: Rewind the database to a specific time (seconds/minutes) without restoring backups.
+- `Global Database`: Cross-region replication with <1-second latency (for disaster recovery/low-latency reads).
+
+Common Mistakes: ⚠️
+- `Confusing Aurora with DynamoDB`: Aurora is relational; DynamoDB is NoSQL.
+- `Overlooking cost`: Aurora is more expensive than RDS but justifies cost for high scalability/performance.
+- `Ignoring backtracking vs. snapshots`: **Backtracking is for short-term recovery (hours/days)**, while snapshots are for long-term.
+
+</details>
+
+<details>
+<summary>🎯Q. Amazon RDS & Aurora Backup: </summary>
+
+- RDS: Offers automated backups (enabled by default, retained up to 35 days) and manual DB snapshots (stored in S3). Supports point-in-time recovery.
+- Aurora: Automatically backs up data to S3 continuously (retained up to 35 days). Supports database cloning and cross-region snapshots.
+
+Simple real-world example: ⭐
+
+- RDS Backup: An e-commerce app uses RDS automated backups for daily recovery. A manual snapshot is taken before a major sale event.
+- Aurora Backup: A financial app uses Aurora’s continuous backup to recover from accidental data deletion in seconds.
+
+Exam Tips: ⭐
+
+Backup Differences: ⭐
+- Aurora backups are continuous; RDS backups are daily with transaction logs.
+- Aurora snapshots are instantaneous (no performance impact) due to storage clustering.
+- Retention: Automated backups (RDS/Aurora) max at 35 days; manual snapshots persist until deleted.
+
+Common Mistakes: ⚠️
+- Assuming Aurora snapshots are slow: They’re instant and storage-based (unlike RDS volume snapshots).
+- Confusing RDS Custom with regular RDS: Custom allows SSH access; standard RDS doesn’t.
+</details>
+
+
+<details>
+<summary>🎯Q. RDS Proxy what it is and why its important and in which situations to use ? </summary>
+
+- `Amazon RDS Proxy` is a fully managed database proxy that sits between your application and RDS databases. 
+- ⭐It allows you to pool and share database connections⭐, improving scalability and security.
+- Never publicaly accessible and only accessible from within the VPC. 
+- handles failover, connection pooling, and read/write splitting.
+
+⭐Simple real-world example for better end-to-end visualization: ⭐ 💡🔥
+Imagine a travel booking app using AWS Lambda (serverless) during peak holiday seasons. 
+Thousands of users trigger Lambda functions simultaneously, each opening a new database connection. 
+Without RDS Proxy, the database gets overwhelmed by too many connections, slowing down or crashing.
+🔥 **With RDS Proxy, connections are reused efficiently**, Lambda functions share pooled connections, and failovers (e.g., during maintenance) happen without disrupting users.
+
+
+Exam Tips: ⭐
+
+- `Use RDS Proxy for serverless applications` (e.g., Lambda) or apps with frequent connection churn to prevent database overload.
+- `Ideal for improving scalability (connection pooling)` and reducing database costs (fewer open connections).
+- `Seamless failover`: RDS Proxy reroutes traffic to a standby DB instance during primary DB failures (e.g., Multi-AZ deployments).
+- `Security`: Integrates with IAM for authentication and avoids exposing databases publicly (only accessible within your VPC).
+
+Common Mistakes: ⚠️
+
+- Assuming RDS Proxy is publicly accessible. ⭐It only works within your VPC.⭐
+- Using it for non-RDS databases (e.g., self-managed MySQL on EC2). RDS Proxy supports only RDS/Aurora.
+- Overlooking IAM role setup: Proxy requires IAM roles for authentication, not just database credentials.
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon Elasticache IMP notes and use cases </summary>
+
+- To get managed Redis or Memcached in-memory data store.
+- used to improve latency and throughput for read-heavy workloads.
+- supports replication and multi-AZ for high availability.
+- helps to make application stateless by storing session data in Elasticache.
+- as its managed aws takes care of patching, monitoring, and backups.
+
+<details>
+<summary>Click to expand image 1</summary>
+<img src="img_1.png" alt="Image 1" width="891">
+</details>
+
+<details>
+<summary>Click to expand image 2</summary>
+<img src="img_2.png" alt="Image 2" width="825">
+</details>
+
+Simple real-world example: ⭐
+An e-commerce platform uses ElastiCache for Redis to cache product listings and user sessions. This reduces latency during peak traffic and ensures sessions persist during server failures.
+
+Exam Tips: ⭐
+- Redis vs. Memcached: Redis supports persistence, clustering, and complex data structures; Memcached scales horizontally for simple caching.
+- Multi-AZ & Failover: Redis offers automatic failover; Memcached does not.
+- Encryption: Redis supports in-transit/at-rest encryption; Memcached only in-transit.
+- VPC Peering: Not supported; use VPC endpoints for cross-VPC access.
+
+Common Mistakes: ⚠️
+- Assuming Memcached supports clustering or persistence (it does not).
+- Forgetting ElastiCache does not reduce RDS storage costs (it only reduces query load).
+</details>
+
+<details>
+<summary>🎯🔥Q. Important ports to know (revise before exam) </summary>
+
+Exam Tips: ⭐
+- Port 22 = SSH (secure shell access) and SFTP (secure file transfer).
+- Port 443 = HTTPS (secure web traffic), Port 80 = HTTP (unsecured web traffic).
+- RDS ports: PostgreSQL (5432), MySQL (3306), Oracle (1521), MSSQL (1433).
+- Aurora uses MySQL (3306) or PostgreSQL (5432) ports based on engine type.
+- Security Groups require port rules, not IP protocols (e.g., allow port 3306 for MySQL, not "MySQL" as a service).
+- FTP uses port 21 (control), but SFTP (port 22) is more secure.
+
+Common Mistakes: ⚠️
+- Confusing MySQL (3306) with PostgreSQL (5432) ports.
+- Assuming SFTP uses port 21 (it uses 22, same as SSH).
+- Forgetting Aurora inherits ports from its compatible engine (MySQL = 3306, PostgreSQL = 5432).
+- Mixing up HTTPS (443) with SSL-based database connections (e.g., RDS uses its default port even with SSL).
+- Opening all ports (0.0.0.0/0) instead of restricting to specific ports for security.
+</details>
+
+
+<br>
+<br>
+********************************************* IGNORE BELOW THIS LINES
 <details>
 Emojis used
 ⭐ - For important points
@@ -660,3 +792,16 @@ Emojis used
 
 
 </details>
+
+
+
+🚀 - Questions to answer later <br>
+Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
+Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
+Q. Difference between IPV4 vs IPV6 and why we have IPV6 ? <br>
+
+
+validate
+- scalability means to serve increases or decreased load efficiently by either increaing or decreasing resources or compute power
+- availability means to serve the request without any downtime which may cause due to hardware failure, software failure, network failure etc.
+
