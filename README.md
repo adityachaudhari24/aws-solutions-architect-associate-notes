@@ -4,8 +4,8 @@ Study material
 1. exam guide : https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf
 2. Stefan Marek's AWS Certified Solutions Architect Associate course on Udemy
 3. AWS Skill builder.
-4. Whizlabs AWS Certified Solutions Architect Associate tests
-5. AWS whitepapers and website documentation.
+4. Whiz labs AWS Certified Solutions Architect Associate tests
+5. AWS white papers and website documentation.
 
 ## Table of Contents
 1. <a href="#introduction">Introduction</a>
@@ -14,6 +14,7 @@ Study material
 4. <a href="#EBS-volume">EBS volume</a>
 5. <a href="#High-Availability-and-Scalability-ELB-and-ASG">High Availability and Scalability ELB and ASG</a>
 6. <a href="#RDS-Aurora-ElastiCache">RDS Aurora ElastiCache</a>
+7. <a href="#Route-53">Route 53</a>
 
 
 ## Introduction
@@ -192,37 +193,70 @@ ABAC is scalable for dynamic environments (e.g., auto-scaling EC2 instances). No
 
 ## EC2
 
-<details> <summary>Q: EC2 Placement Groups types and use cases?</summary>
+<details> <summary>🎯Q: EC2 Placement Groups types and use cases?</summary>
 
-Cluster: Single AZ, same rack (low latency).<br> Use Cases: Low latency, high network throughput.<br>
+- `Cluster`: Instances are grouped into a single Availability Zone (AZ) for ⭐low latency.⭐
+  - PRO : low latency, high performance.
+  - limitation : If AZ fails, all instances fail.
 
-Partition: Isolated partitions per rack (e.g., Hadoop/Cassandra).<br> Use Cases: Large distributed apps like Hadoop, Cassandra, Kafka.<br> Scenario: Isolate microservices into different partitions to ensure fault tolerance and high availability.<br>
+- `Spread`: Instances are spread across distinct hardware (max 7 instances per AZ) for fault tolerance. 
+  - here each EC2 instance is on different hardware(⭐even when its in same AZ⭐) and in different AZs as well.
+  - PRO : fault tolerance.
+  - limitation : limited to 7 instances per AZ.
+  - **UseCase** : critical applications, where each instance must be isolated from failure from each other.
+  
+- `Partition`: Instances are divided into partitions, each isolated from failures (used for large distributed systems like Hadoop).
+   - Same Availability Zone (AZ): All instances within a partition placement group are in the same AZ.
+   - Same Region: All instances within a partition placement group are in the same AWS region.
+   - Isolation: Each partition is isolated from the failures of other partitions, providing fault tolerance.
+   - 
 
-Spread: Separate hardware per instance (critical apps).<br> Use Cases: Critical apps requiring high availability.<br> Scenario: Place each instance on separate hardware to minimize the risk of simultaneous failures and ensure continuous operation.<br>
+- `cluster` is single AZ, `spread` is multiple AZs, `partition` is multiple AZs and multiple regions.
 
-Key Limits:
+Simple real-world example for end-to-end visualization: ⭐
 
-Cluster groups risk AZ failure.
+- Cluster: A high-performance computing (HPC) workload requiring fast communication between instances (e.g., financial modeling).
+- Spread: Hosting mission-critical applications (e.g., healthcare systems) where downtime is unacceptable.
+- Partition: A distributed database (e.g., Cassandra) where partitions ensure failure isolation.
 
-Spread groups support only 7 instances per AZ (EC2) or 5 (other services like EBS).
+Exam Cheat Sheet ⭐
 
-Can’t merge groups or move existing instances into a group.
+| Type | Best For | AZs | Failure Risk |
+|------|-----------|-----|--------------|
+| Cluster | Speed (HPC, gaming) | Single AZ | Entire group if rack fails |
+| Spread | Critical small apps | Multiple AZs | Only 1 instance per failure |
+| Partition | Big data (Hadoop) | Multiple AZs | Only 1 partition (subset of nodes) |
+
+Brain Hack for Exam⭐
+- Cluster = "Cram together" → Speed.
+- Spread = "Spread out" → Safety.
+- Partition = "Divide and conquer" → Scale + Partial safety.
+
+
 
 Exam Tip:
 
-"Low latency" → Cluster
+- "Low latency" → Cluster
+- "Fault tolerance" → Spread
+-  "Large distributed apps"  → Partition
 
-"Fault tolerance" → Spread
+</details>
 
-"Large distributed apps" → Partition
+<details>
+<summary>🎯Q: Different instances types in EC2 ?</summary>
+Instance Types:
 
+- `General-purpose` (e.g., T3, M6g) for balanced workloads.
+- `Compute-optimized` (e.g., C5) for CPU-intensive tasks.
+- `Memory-optimized` (e.g., R5) for in-memory databases.
 </details>
 
 
 <details>
-<summary>Q. What is the ENI and why it's used? (exam point of view)</summary>
+<summary>🎯Q. What is the ENI and why it's used? </summary>
 
-**Elastic Network Interface (ENI)** is a virtual network interface that you can attach to an Amazon EC2 instance in a Virtual Private Cloud (VPC). It enables you to create a management network, use network and security appliances, and create dual-homed instances with workloads/roles on distinct subnets.
+- An Elastic Network Interface (ENI) is a virtual network interface that enables communication between an Amazon EC2 instance and other AWS resources or on-premises networks. 
+- It provides network connectivity, IP addresses (IPv4/IPv6), security groups, and MAC addresses to instances.
 
 **what is attached to the network interface?**
 ** Security groups, public IP, Elastic IP, private IP,and MAC address. <br>
@@ -235,23 +269,23 @@ MAC address means Media Access Control address, which is a unique identifier ass
 
 **Exam Tips:**
 **Key Points:**
-- ENIs are bound to a specific Availability Zone (AZ) and cannot be moved across AZs.
+- ENIs are ⭐bound to a specific Availability Zone (AZ) and cannot be moved across AZs⭐.
 - You can attach multiple ENIs to an instance, depending on the instance type.
-- ENIs retain their attributes (e.g., private IPs, MAC addresses) when detached and reattached to another instance.
-- ENIs are useful for creating dual-homed instances (e.g., instances with public and private IPs).
+- ⭐ENIs retain their attributes (e.g., private IPs, MAC addresses) when detached and reattached to another instance.⭐
+- ENIs are useful for creating ⭐dual-homed instances⭐ (e.g., instances with public and private IPs).
 
 **Common Mistakes:**
 - Forgetting that ENIs are AZ-specific.
-- Overlooking the fact that ENIs can have multiple private IPs and one public IP.
+- Overlooking the fact that ENIs ⭐can have multiple private IPs and one public IP⭐.
 - Confusing ENIs with Elastic IPs (EIPs), which are public IPs that can be remapped.
 </details>
 
-<details>
-<summary>Q. What is EC2 hibernate and use of it? scenarios ? 
-</summary>
 
-Pauses an EC2 instance and saves its in-memory state (RAM) to the root EBS volume, allowing it to resume later from the exact state. <br>
-User Case : 
+<details>
+<summary>🎯Q. What is EC2 hibernate and use of it? scenarios ?</summary>
+
+- It Pauses an EC2 instance and saves its in-memory state (RAM) to the root EBS volume, allowing it to resume later from the exact state. 
+
 
 what is use of hibernation ? <br>
 - Save time by preserving the RAM state.
@@ -259,21 +293,23 @@ what is use of hibernation ? <br>
 - Ideal for long-running applications that need to be paused and resumed quickly. <br>
 
 **Key Prerequisites:**
-- Encrypted root EBS volume (mandatory).
+- ⭐Encrypted root EBS volume (mandatory).⭐
 - RAM ≤ EBS root volume size (e.g., 16 GiB RAM → root volume ≥ 16 GiB).
 - Supported instance families: M5, C5, R5, T3 (not all instance types).
 
 **Hibernate vs. Stop:**
-- **Stop:** Terminates RAM state; starts fresh on next launch.
-- **Hibernate:** Preserves RAM state; resumes processes.
+- **Stop:** ⭐Terminates RAM state;⭐ starts fresh on next launch.
+- **Hibernate:** ⭐Preserves RAM state;⭐ resumes processes.
 </details>
+
 
 ## EBS volume
 <details>
 <summary>Q: What is EBS volume and its use?</summary>
 
-**EBS volumes** are like USB sticks for EC2, providing persistent block storage. They remain intact even after the associated EC2 instance is terminated. EBS volumes can be dynamically attached to or detached from EC2 instances, allowing for flexible storage management.
-
+- **EBS volumes** are like USB sticks for EC2, providing persistent block storage. 
+- They remain intact even after the associated EC2 instance is terminated. 
+- EBS volumes can be ⭐dynamically attached to or detached from EC2 instances⭐, allowing for flexible storage management.
 - **Per AZ:** EBS volumes are specific to an Availability Zone.
 - **Attachment:** Can be mounted to multiple EC2 instances but attached to only one instance at a time.
 
@@ -281,11 +317,11 @@ what is use of hibernation ? <br>
 - **Incremental Nature of Snapshots:** Understand that EBS snapshots are incremental. After the initial snapshot, only the changed data blocks are stored in subsequent snapshots.
 - **Data Restoration:** When restoring a volume from a snapshot, the new volume will be an exact replica of the original volume at the time the snapshot was taken.
 - **Cross-Region and Cross-Account Sharing:** EBS snapshots can be copied across regions and shared between AWS accounts, facilitating data migration and disaster recovery strategies.
-- **Cost Considerations:** Since snapshots are stored incrementally, they are cost-effective. However, it's essential to manage and delete unnecessary snapshots to avoid accruing storage costs.
+- **Cost Considerations:** ⭐Since snapshots are stored incrementally, they are cost-effective⭐. However, it's essential to manage and delete unnecessary snapshots to avoid accruing storage costs.
 </details>
 
 <details>
-<summary>EBS volume types</summary>
+<summary>🎯Q . what are different EBS volume types</summary>
 
 **1. General Purpose SSD (gp2) and (gp3)**
 - **Use Case:** Boot volumes, virtual desktops, dev and test environments.
@@ -305,14 +341,27 @@ what is use of hibernation ? <br>
 
 
 <details>
-<summary>Q: What is the multi-attach feature?</summary>
+<summary>🎯Q: What is the multi-attach feature?</summary>
 
-**Multi-Attach:** Allows a single EBS volume to be attached to multiple EC2 instances within the same AZ. Each instance can read and write data to the volume simultaneously.
+- Allows a single EBS volume to be attached to multiple EC2 instances within the same AZ. 
+- Each instance can read and write data to the volume simultaneously.
 
 **Use Cases:**
 - Shared file systems
 - Clustered databases
 - Applications requiring high availability
+
+Exam Tips: ⭐
+- Multi-Attach is only supported for io1 and io2 volume types.
+- All instances must be in the ⭐same Availability Zone⭐
+- Ideal for clustered workloads like databases (e.g., Oracle RAC, SQL Server Failover Cluster).
+- Not supported for boot volumes—only for data volumes.
+- Use Multi-Attach for high availability and low-latency shared storage scenarios.
+
+Common Mistakes: ⚠️
+- Assuming Multi-Attach works with all EBS volume types (it’s only for io1/io2).
+- Trying to attach the volume to instances in different Availability Zones.
+- Using Multi-Attach for boot volumes (it’s not supported).
 
 **Key Points:**
 - Application must be designed to handle concurrent writes to the volume.
@@ -321,11 +370,10 @@ what is use of hibernation ? <br>
 </details>
 
 <details>
-<summary>Q. Explain EC2 instance store</summary>
+<summary>🎯Q. Explain EC2 instance store</summary>
 
-**Better IO performance**  
-If an EC2 instance store stops or terminates, data is lost.
-
+- **EC2 Instance Store** provides temporary block-level storage for EC2 instances.
+- If an EC2 instance store stops or terminates, data is lost.
 - **Best for:** Buffer, cache, scratch data, temporary content
 - **Ideal for:** Low latency, high performance applications
 
@@ -339,11 +387,10 @@ A machine learning job processing large datasets where temporary storage is need
 - **Cost-effective for Temporary Storage:** Instance stores are typically more cost-effective for workloads needing high-throughput but not requiring data persistence.
 - **Common Mistake:** Confusing instance store with persistent storage options like EBS or S3. Instance store is only suitable for ephemeral storage needs.
 </details>
-
-
 <details>
-<summary>Q: What is Amazon EFS - Elastic File System?</summary>
 
+
+<summary>🎯Q: What is Amazon EFS - Elastic File System?</summary>
 **Amazon EFS** is a managed NFS (Network File System) that can be shared across thousands of EC2 instances.
 
 **Use Cases:**
@@ -357,13 +404,12 @@ A machine learning job processing large datasets where temporary storage is need
 - Uses security groups to control access to the file system
 - Only for Linux-based instances (for Windows, there is a separate file system by AWS)
 - No need for capacity planning as it scales automatically (recommended option)
-
 </details>
 
 
 
 <details>
-<summary>Q. EFS vs EBS, use case and exam tips</summary>
+<summary>🎯Q. EFS vs EBS, use case and exam tips</summary>
 **Example Use Case:**
 **EFS:**
 - Used for applications like content management systems (CMS), big data analytics, or media workflows where multiple EC2 instances need concurrent access to the same data.
@@ -393,7 +439,7 @@ A machine learning job processing large datasets where temporary storage is need
 
 
 <details>
-<summary>Q: Why is the "Delete On Termination" attribute enabled by default for the root volume but disabled for other EBS volumes?</summary>
+<summary>🎯Q: Why is the "Delete On Termination" attribute enabled by default for the root volume but disabled for other EBS volumes?</summary>
 
 **Root Volume:**
 - **Reason:** The root volume contains the operating system and is essential for the instance to boot. When an instance is terminated, it is often desirable to delete the root volume to avoid unnecessary storage costs and to ensure that the instance is completely removed.
@@ -405,9 +451,9 @@ A machine learning job processing large datasets where temporary storage is need
 </details>
 
 <details>
-<summary>Q: Can you launch an EC2 instance using an AMI from another AWS Region?</summary>
+<summary>🎯Q: Can you launch an EC2 instance using an AMI from another AWS Region?</summary>
 
-**Answer:** No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. AMIs are unique to each AWS Region.
+**Answer:** No, you cannot directly launch an EC2 instance using an AMI from another AWS Region. ⭐AMIs are unique to each AWS Region.⭐
 
 **Solution:** You can copy the AMI to the target AWS Region and then use it to create your EC2 instances.
 </details>
@@ -664,6 +710,8 @@ Backup Differences: ⭐
 - Aurora backups are continuous; RDS backups are daily with transaction logs.
 - Aurora snapshots are instantaneous (no performance impact) due to storage clustering.
 - Retention: Automated backups (RDS/Aurora) max at 35 days; manual snapshots persist until deleted.
+- Use `RDS Read Replicas` when you need to scale out read-heavy workloads.
+- Use `RDS Multi-AZ` when you need high availability and automatic failover for critical applications.
 
 Common Mistakes: ⚠️
 - Assuming Aurora snapshots are slow: They’re instant and storage-based (unlike RDS volume snapshots).
@@ -754,9 +802,180 @@ Common Mistakes: ⚠️
 </details>
 
 
+🎯 ⭐One liners notes⭐ 🎯
+- `RDS Read Replicas` **add new endpoints with their own DNS name.** We need to change our application to reference them individually to balance the read load. However Multi-AZ keeps the same connection string regardless of which database is up.
+- 🔥`RDS read replica` uses asynchronous replication, while `RDS Multi-AZ` uses synchronous replication.
+- You can not create encrypted Read Replicas from an unencrypted RDS DB instance.
+
+
+
+
+## Route 53
+<details>
+<summary>🎯Q. what is DNS ? Route 53 ? and hosted zone?</summary>
+
+- `DNS (Domain Name System)` is a distributed system that translates domain names (e.g., www.example.com) into IP addresses.
+- `Route 53` is a scalable and highly available Domain Name System (DNS) web service.
+- `DNS Terminologies`
+  - `Domain Name`: Human-readable name (e.g., www.example.com).
+  - `IP Address`: Numeric address (e.g.,
+  - `Domain Registrar`: Company that manages domain registration. (Amazon Route 53, GoDaddy, etc.)
+  - `DNS records`: types of DNS records (e.g., A, CNAME, MX, NS, SOA, TXT).
+    - A (Address): Maps domain to IPv4 address.
+    - AAAA (IPv6 Address): Maps domain to IPv6 address.
+    - CNAME (Canonical Name): Maps domain to another domain (e.g., www.example.com to example.com).
+    - MX (Mail Exchange): Maps domain to mail servers.
+    - NS (Name Server): Maps domain to authoritative name servers.
+    - SOA (Start of Authority): Contains authoritative information about the domain.
+    - TXT (Text): Contains arbitrary text information.
+    - PTR (Pointer): Maps IP address to domain name (reverse lookup). and many more..
+  - `zone file`: A file that contains DNS records for a domain.
+  - `name server`: A ⭐server that stores DNS records for a domain.⭐
+  - `root name server`: A root name server stores the DNS root zone and directs DNS queries to the appropriate top-level domain (TLD) name servers. ( its dot (.) domain)
+  - `top-level domain (TLD)`: The last part of a domain name (e.g., .com, .org, .net).
+  - `second level domain`: The part of a domain name before the TLD (e.g., example.com).
+  - `subdomain`: A domain that is part of a larger domain (e.g., blog.example.com).
+  - `fully qualified domain name (FQDN)`: A domain name that includes all levels (e.g., www.example.com).
+  - `recursive DNS resolver`: A server that queries authoritative name servers on behalf of clients.
+  - `authoritative name server`: A server that stores DNS records for a domain. ( Amazon Route 53, GoDaddy, etc.) - aka : Authoritative DNS.
+  
+`Route 53 - Records`
+- helps to route traffic to the internet resources like EC2 instances, S3 buckets, ELB, etc.
+- each record contains 
+  - Domain/Subdomain name - e.g., example.com
+  - Record type - e.g., A, AAAA, CNAME, MX, etc.
+  - value - e.g., IP address, domain name, etc.
+  - routing policy - means how to route the traffic to the resources. e.g., simple, weighted, latency, failover, geolocation, multivalue, etc.
+  - TTL - time to live, how long the record is cached by the resolver(client).
+    - means, if the TTL is 60 seconds, the resolver(client) will cache the record for 60 seconds and after that, it will query the authoritative name server to get the updated record.
+- supports **A, AAAA, CNAME, MX, NS,** SOA, TXT, PTR, SRV, SPF, NAPTR, CAA, and more.
+  - A : maps domain to IPv4 address.
+  - AAAA : maps domain to IPv6 address.
+  - CNAME : maps domain to another domain.
+  - MX : maps domain to mail servers.
+  - NS : maps domain to authoritative name servers. (example : ns-123.awsdns-12.com) 
+
+`Hosted Zone` : A container for DNS records for a domain.
+- `Public Hosted Zone` : Used to route traffic on the internet. Example : www.example.com
+  - means you have a domain www.example.com and you want to route the traffic to your internet resources like EC2 instances, S3 buckets, ELB, etc. you create the public hosted zone in the route 53 and add the records to route the traffic to the resources.
+- `Private Hosted Zone` : Used to route traffic within an Amazon VPC. Example : www.example.internal
+  - means you have a domain www.example.internal and you want to route the traffic within the VPC to the resources like EC2 instances, S3 buckets, ELB, etc. you create the private hosted zone in the route 53 and add the records to route the traffic to the resources.
+- </details>
+
+
+<details>
+<summary>🎯Q. what are routing policies for Route 53? </summary>
+
+- Defines how Route 53 responds to DNS queries based on the routing configuration.
+- `Simple Routing`: Maps a domain to a single resource (e.g., an IP address). 
+- `Weighted Routing`: Distributes traffic based on weights assigned to resources.
+- `Latency Routing`: Routes traffic based on the lowest network latency for end users.
+- `Failover Routing`: Directs traffic to a standby resource ⭐during an outage.
+- `Geolocation Routing`: Routes traffic based on the geographic ⭐location of the user⭐.
+  - Examples:  
+  - Users from Europe are routed to europe.example.com.
+  - Users from North America are routed to us.example.com.
+- `Geoproximity Routing`: Routes traffic based on the geographic ⭐location of the user and resources.⭐
+  - defined bias to route the traffic to the specific resources. ( check stephan's video for excellent diagram explanation)
+  - Examples
+  - Users closer to the US East region are routed to us-east.example.com.
+  - Users closer to the US West region are routed to us-west.example.com.
+  - You can ⭐apply a bias⭐ to route more traffic to us-west.example.com even if users are closer to the US East region.
+- `Multivalue Answer Routing`: Returns multiple values in response to DNS queries.
+    - Simple Routing is suitable for straightforward use cases where you only need to map a domain to a single resource.
+    - we can provide health checks for the resources in the multivalue answer routing.
+</details>
+
+
+
+<details>
+<summary>🎯Q. What is Alias record ? how its different then CNAME? (IMPORTANT) </summary>
+
+- An Alias Record in Route 53 is a special DNS record that maps a domain name (e.g., example.com) directly to an AWS resource (e.g., S3 bucket, CloudFront distribution, or another Route 53 record). Unlike CNAME records, Alias records can be used for the root domain (apex zone) and are free, with Route 53 automatically updating the record if the target’s IP changes.
+- Simple Real-World Example: ⭐
+  - Scenario: You host a static website on an S3 bucket named my-website-bucket. 
+  - Goal: Point example.com (root domain) to the S3 bucket. 
+  - Solution: Create an Alias record in Route 53 for example.com that aliases to the S3 bucket’s endpoint (my-website-bucket.s3-website-us-east-1.amazonaws.com). 
+  - Result: Users accessing example.com are routed to the S3 bucket, and Route 53 automatically handles IP changes if AWS updates the S3 endpoint.
+
+Exam Tips: ⭐
+
+- Alias vs. CNAME: Alias records work for root domains (e.g., example.com), while CNAMEs only work for subdomains (e.g., www.example.com).
+- AWS Resources Only: Alias records can only point to AWS services (e.g., ELB, CloudFront, S3, RDS) or other Route 53 records.
+- Cost-Free: Alias queries to AWS resources are free, unlike CNAMEs, which incur standard DNS query costs.
+- Automatic Updates: Alias records dynamically resolve to the target’s IPs, ensuring no manual updates if the target changes.
+
+
+Common Mistakes: ⚠️
+
+- `Using CNAME for Root Domain`: Attempting to use a CNAME for example.com (violates DNS standards; Alias is required).
+- `Alias for Non-AWS Resources`: Trying to alias to external services (e.g., a third-party server)—use CNAME instead.
+- `Confusing Alias with A Records`: Using an A record with an AWS resource’s IP (IPs can change; Alias ensures reliability).
+  - If you want to map AWS elastic IP still you have to use the A record , as Alias record is only for the AWS resources like ELB, CloudFront, S3, etc.
+
+additional exam specific notes:
+
+- Q. When would you use an Alias record instead of a CNAME?
+    - Answer: When pointing a root domain (e.g., example.com) to an AWS resource like S3 or CloudFront.
+- Q. Can an Alias record point to an on-premises server?
+    - Answer: No—Alias records only work with AWS resources or other Route 53 records.
+- Q. What happens if an S3 bucket’s IP changes after configuring an Alias?
+    - Answer: ⭐Route 53 automatically updates the Alias record’s IP⭐, ensuring no downtime.
+
+</details>
+
+
+<details>
+<summary>🎯Q. Route 53 health checks </summary>
+
+- Route 53 Health Checks monitor the availability and performance of AWS resources (e.g., EC2 instances, load balancers) or custom endpoints. They enable automated DNS failover by rerouting traffic to healthy resources when failures are detected. Health checks can evaluate HTTP/HTTPS status codes, TCP connectivity, or CloudWatch alarms.
+- `Types of Health Checks`:
+    - `Endpoint Health Check`: Monitors the health of an endpoint (e.g., a website URL).
+    - `CloudWatch Alarm Health Check`: Monitors the status of a CloudWatch alarm.
+    - `Calculated Health Check`: Combines multiple health checks to determine overall health.
+
+Simple real-world example: ⭐
+A company hosts a web app on an EC2 instance behind an Application Load Balancer (ALB) in us-east-1 and a backup ALB in us-west-2.
+They configure Route 53 health checks to send HTTP requests to /health on both ALBs every 30 seconds.
+If the primary ALB fails to respond twice consecutively, Route 53 marks it unhealthy and switches DNS traffic to the backup ALB, ensuring minimal downtime.
+
+Exam Tips: ⭐
+
+- Health checks can monitor endpoints (HTTP/HTTPS/TCP), CloudWatch alarms (for private resources), or other health checks (calculated checks).
+- Use Failover Routing Policy to route traffic to a secondary resource if the primary fails.
+- ⭐Health checks require publicly accessible endpoints unless using CloudWatch alarms for private resources.⭐
+- Configure failure thresholds (e.g., 3 failures in 3 checks) to avoid false positives.
+
+Common Mistakes: ⚠️
+
+- Assuming health checks work for ⭐private resources⭐ without CloudWatch integration (Route 53 can’t access private IPs directly).
+- Forgetting to configure correct status codes (e.g., expecting HTTP 200 instead of 3xx).
+- Overlooking request intervals (default: 30 seconds; faster checks cost more).
+</details>
+
+
+
+🎯 ⭐One liners notes⭐ 🎯
+- except for Alias records, TTL is mandatory for each record in the route 53.
+- alias records are used to route traffic to AWS resources like ELB, CloudFront, S3, etc. without any additional cost and TTL is not required for alias records.
+- you cannot set ALias for EC2 instances, RDS, etc. you can only set alias for AWS resources like ELB, CloudFront, S3, etc.
+- 
+
+
+
 <br>
 <br>
 ********************************************* IGNORE BELOW THIS LINES
+
+
+
+<details>
+<summary>🎯Q. Template 1 </summary>
+</details>
+
+<details>
+<summary>🎯🔥Q. Template 2 </summary>
+
 <details>
 Emojis used
 ⭐ - For important points
@@ -769,12 +988,7 @@ Emojis used
 </details>
 
 
-<details>
-<summary>🎯Q. Template 1 </summary>
-</details>
 
-<details>
-<summary>🎯🔥Q. Template 2 </summary>
 
 **Definition:**
 
@@ -803,5 +1017,5 @@ Q. Difference between IPV4 vs IPV6 and why we have IPV6 ? <br>
 
 validate
 - scalability means to serve increases or decreased load efficiently by either increaing or decreasing resources or compute power
-- availability means to serve the request without any downtime which may cause due to hardware failure, software failure, network failure etc.
+- availability means to serve the request ⭐without any downtime⭐ which may cause due to hardware failure, software failure, network failure etc.
 
