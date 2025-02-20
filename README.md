@@ -17,6 +17,7 @@ Study material
 7. <a href="#Route-53">Route 53</a>
 8. <a href="#Amazon-S3-and-other-storage-services">Amazon S3 and other storage services</a>
 9. <a href="#CloudFront-and-AWS-Global-Accelerator">CloudFront and AWS Global Accelerator</a>
+10. <a href="#SQS-SNS">SQS SNS</a>
 
 
 ## Introduction
@@ -1256,6 +1257,7 @@ Common Mistakes: ⚠️
 - AWS Transfer Family: Used to transfer files to AWS storage services like S3, EFS, and FSx for Windows File Server.
 - AWS Storage Gateway: Used to connect on-premises environments with AWS Cloud storage, enabling hybrid cloud storage solutions.
 - Data-Sync : move large amounts of data between on-premises storage and AWS storage services like S3, EFS, and FSx.
+- Snowball Edge `comes with computing capabilities and allows you to pre-process the data while it's being moved into Snowball`.
 
 
 ## CloudFront and AWS Global Accelerator
@@ -1370,6 +1372,97 @@ Common Mistakes: ⚠️
     - CloudFront caches content at edges.
     - Global Accelerator uses edges **only for traffic entry, not storage.**
 </details>
+
+
+
+## SQS SNS
+Decople using - SQA - Queue model, SNS - Pub-Sub, Kinesis - Streaming
+
+<details>
+<summary>🎯Q. Difference SQS VS SNS VS Kinesis ? </summary>
+
+Definition: ⭐
+
+- `SQS`: Simple Queue Service for decoupled, scalable message queuing ⭐(pull-based).⭐
+- `SNS`: Simple Notification Service for pub/sub messaging ⭐(push-based).⭐
+- `Kinesis`: ⭐Real-time streaming⭐ for large-scale data with ordered, replayable records.
+   - `Kinesis Data Streams`: For real-time data ingestion and processing.
+   - `Kinesis Data Firehose`: ⭐⭐⭐⭐⭐ For data delivery to S3, Redshift, Elasticsearch, etc. ⭐⭐⭐⭐⭐
+   - `Kinesis Data Analytics`: For real-time analytics on streaming data.
+
+⭐Simple Real-World Example:⭐
+Imagine an e-commerce app:
+
+- `SQS`: Processes orders one-by-one (e.g., payment service pulls orders from a queue).
+- `SNS`: Sends order confirmation emails/SMS (1 event → multiple subscribers).
+- `Kinesis`: Analyzes real-time user clickstreams (e.g., tracking page views for live dashboards).
+
+Exam Tips: ⭐
+
+- SQS:
+    - Polling (pull), retention (14 days), DLQ for failed messages.
+    - Use for async processing ⭐with 1 consumer per message.⭐
+    - supports long polling, short polling, and visibility timeout(means how long the message will be invisible to other consumers after it is consumed by one consumer).
+- SNS:
+    - Push to multiple subscribers (SQS, Lambda, HTTP).
+    - `Fanout pattern`: 1 SNS topic → multiple SQS queues.
+    - `No Persistence`: Messages are not stored; use SQS Subscribers for durability.
+- Kinesis:
+    - Shards define capacity; ordered records, replayable for 24h-365 days.
+    - `Use for real-time analytics` (e.g., clickstreams, logs).
+    - Data Retention: Default 24h, extendable to 365 days (extra cost)
+
+Common Mistakes: ⚠️
+
+- Using SQS for broadcasting (use SNS + SQS fanout instead).
+- Assuming SNS stores messages (no retention; pair with SQS for durability).
+- `Confusing Kinesis with SNS/SQS`: Kinesis handles high-throughput streams, not simple notifications.
+
+
+⭐Key Differentiators for Exam Scenarios:⭐
+
+- Order Matters?
+  - Yes → Kinesis or SQS FIFO.
+  - No → SQS Standard.
+
+- Multiple Consumers?
+  - Same Data: Kinesis (multiple apps read independently).
+  - Different Data: SNS (fanout to SQS/Lambda).
+
+- Real-Time vs. Batched:
+  - Real-Time: Kinesis.
+  - Async Batched: SQS.
+  - 
+</details>
+
+<details>
+<summary>🎯Q. Amazon MQ </summary>
+
+- Amazon MQ is a managed message broker service that supports industry-standard protocols (MQTT, AMQP, STOMP, OpenWire) for legacy applications. It’s ideal for migrating existing messaging systems to the cloud without rewriting code.
+
+- Simple Real-World Example:
+  - A financial institution migrates its on-premises stock trading app (using Apache ActiveMQ/JMS) to AWS. They use Amazon MQ to retain compatibility with JMS APIs, allowing their app to send/receive orders via queues/topics without code changes.
+
+Exam Tips: ⭐
+
+- Use Amazon MQ when migrating legacy apps reliant on MQ protocols (e.g., JMS, AMQP).
+- Supports ActiveMQ and RabbitMQ engines (managed brokers).
+- Integrates with on-premises systems via VPN/Direct Connect (hybrid architecture).
+- High availability: Deploys brokers in Multi-AZ mode for failover.
+- Not serverless: You provision brokers (unlike SQS/SNS).
+
+
+Common Mistakes: ⚠️
+
+- Choosing Amazon MQ for new cloud-native apps (use SQS/SNS/Kinesis instead).
+- Assuming it’s fully serverless (requires broker provisioning, unlike SQS).
+- Forgetting VPC setup: Amazon MQ runs in your VPC for security.
+
+</details>
+
+⭐One liners notes⭐
+- SQS, SNS, and Kinesis are all regional services, meaning they are available across all AZs within a specific region.
+- Amazon MQ is for legacy protocol compatibility; SQS/SNS are for cloud-native apps.
 
 <br>
 <br>
