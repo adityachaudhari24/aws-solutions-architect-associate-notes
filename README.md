@@ -1211,15 +1211,6 @@ Common Mistakes: ⚠️
 </details>
 
 
-Exam Tips: ⭐
-
-- Understand the three types of gateways:
-    - `File Gateway`: For storing files as objects in S3.
-    - `Volume Gateway`: For block storage, either cached (primary data in S3, frequently accessed data locally) or stored (entire dataset on-premises, asynchronously backed up to AWS).
-    - `Tape Gateway`: For virtual tape libraries, used for backup and archival.
-    - Storage Gateway is ideal for hybrid cloud scenarios, enabling on-premises applications to use AWS storage.
-It supports data encryption in transit (SSL/TLS) and at rest (AWS KMS).
-
 <details>
 <summary>🎯Q. AWS Gateway </summary>
 
@@ -1227,6 +1218,14 @@ It supports data encryption in transit (SSL/TLS) and at rest (AWS KMS).
 - It provides `seamless integration between on-premises applications and AWS storage services like Amazon S3, Amazon S3 Glacier,` Amazon EBS, and AWS Backup. 
 - It `supports three types of gateways: File Gateway, Volume Gateway, and Tape Gateway.`
 
+Exam Tips: ⭐
+
+- Understand the three types of gateways:
+    - `File Gateway`: For storing files as objects in S3.
+    - `Volume Gateway`: For block storage, either cached (primary data in S3, frequently accessed data locally) or stored (entire dataset on-premises, asynchronously backed up to AWS).
+    - `Tape Gateway`: For virtual tape libraries, used for backup and archival.
+    - Storage Gateway is ideal for hybrid cloud scenarios, enabling on-premises applications to use AWS storage.
+      It supports data encryption in transit (SSL/TLS) and at rest (AWS KMS).
 </details>
 
 <details>
