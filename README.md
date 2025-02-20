@@ -15,6 +15,8 @@ Study material
 5. <a href="#High-Availability-and-Scalability-ELB-and-ASG">High Availability and Scalability ELB and ASG</a>
 6. <a href="#RDS-Aurora-ElastiCache">RDS Aurora ElastiCache</a>
 7. <a href="#Route-53">Route 53</a>
+8. <a href="#Amazon-S3-and-other-storage-services">Amazon S3 and other storage services</a>
+9. <a href="#CloudFront-and-AWS-Global-Accelerator">CloudFront and AWS Global Accelerator</a>
 
 
 ## Introduction
@@ -962,6 +964,412 @@ Common Mistakes: ⚠️
 - 
 
 
+
+## Amazon S3 and other storage services
+
+<details>
+<summary>🎯Q. What is Amazon S3 and how data gets stored in S3 </summary>
+
+- Amazon S3 (Simple Storage Service) is a scalable, secure, and highly available object storage service designed to store and retrieve any amount of data from anywhere. Data is stored as objects in buckets (containers), each identified by a unique key. S3 supports versioning, encryption, lifecycle policies, and multiple storage classes (e.g., S3 Standard, Glacier) for cost optimization.
+- Exam Tips: ⭐
+  - Bucket names are globally unique across all AWS accounts and must follow DNS naming rules.
+  - S3 is object storage (not block storage like EBS or file storage like EFS).
+  - Encryption options: SSE-S3 (AWS-managed keys), SSE-KMS (customer-managed keys), SSE-C (customer-provided keys).
+  - Access control: Use bucket policies, ACLs, or IAM policies to manage permissions.
+  - Storage classes: Know differences (e.g., S3 Standard for frequent access, Glacier for archival).
+
+Common Mistakes: ⚠️
+- Confusing S3 with block/file storage: S3 is for objects (e.g., images, backups), not databases/OS disks.
+- Forgetting bucket name uniqueness: Names must be unique globally, not just within your account.
+- Ignoring storage class tradeoffs: Glacier has retrieval delays (minutes to hours), while S3 Standard-IA is for infrequent but immediate access.
+- Overlooking versioning: ⭐Without versioning, overwritten objects are permanently lost.⭐
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon S3 Security  </summary>
+
+- Amazon S3 security ensures data protection through encryption, access controls, and compliance
+- Objects are secured using:
+  - Encryption: At rest (SSE-S3, SSE-KMS, SSE-C) or in transit (SSL/TLS).
+  - Access Policies: Bucket policies, IAM policies, ACLs, and VPC Endpoints.
+  - Versioning & MFA Delete: Prevent accidental deletion/modification.
+  - Block Public Access: Global settings to enforce "no public access" by default.
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon S3 Replication  </summary>
+
+- Amazon S3 Replication automatically copies objects across S3 buckets. (versioning must be enabled) for both of these options)
+  - Cross-Region Replication (CRR): Copies objects to a bucket in a different AWS region (e.g., for disaster recovery).
+  - Same-Region Replication (SRR): Copies objects within the same region (e.g., for compliance, aggregation, or latency reduction).
+
+Simple end-to-end real-world example: ⭐
+- A global e-commerce company uses:
+  - CRR to replicate order data from us-east-1 to eu-west-1 for disaster recovery.
+  - SRR to aggregate logs from multiple buckets in us-east-1 into a central bucket for analytics.
+  - Lifecycle policies to archive logs to S3 Glacier after replication.
+
+Common Mistakes: ⚠️
+
+- After replication is enabled only new objects are replicated, existing objects are not replicated. Optionally you can replicate the existing objects by using the `S3 batch replication` feature.
+
+</details>
+
+<details>
+<summary>🎯Q. Amazon S3 storage classes , durability and availibility </summary>
+
+- Different storage classes and their characteristics:
+  - `S3 Standard`: 99.99% availability, frequent access. ⭐used for frequently accessed data.
+  - `S3 Intelligent-Tiering`: Automatically moves objects between tiers based on usage. ⭐used for unpredictable access patterns.
+  - `S3 Standard-IA` (Infrequent Access): 99.9% availability, lower cost for less frequent access. ⭐used for infrequently accessed data.
+  - `S3 One Zone-IA`: 99.5% availability, stores data in one AZ (cheaper but less resilient). ⭐used for non-critical data.
+  - `S3 Glacier` (Instant, Flexible, Deep Archive): For archival (retrieval times: minutes to hours). ⭐used for archival data.
+
+- Amazon S3 storage classes are cost-optimized tiers for storing objects based on access frequency and retrieval requirements. All classes provide 99.999999999% (11 9s) durability, but availability varies:
+   - `S3 Standard`: 99.99% availability (frequent access).
+   - `S3 Intelligent-Tiering`: Automatically moves objects between tiers (frequent, infrequent, archive) based on usage.
+   - `S3 Standard-IA` (Infrequent Access): 99.9% availability (lower cost for less frequent access).
+   - `S3 One Zone-IA`: 99.5% availability (stores data in one AZ; cheaper but less resilient).
+   - `S3 Glacier` (Instant, Flexible, Deep Archive): For archival (retrieval times: minutes to hours).
+
+- Simple end-to-end real-world example: ⭐
+  - A video streaming platform uses:
+    - S3 Standard: Stores newly uploaded videos (frequent access).
+    - S3 Intelligent-Tiering: Automatically moves older videos to lower-cost tiers as views decline.
+    - S3 Glacier Flexible Retrieval: Archives raw footage (retrievable in 1-5 minutes).
+    - S3 One Zone-IA: Stores transcoded logs (non-critical data, cost-sensitive).
+
+Exam Tips: ⭐
+
+- `Durability ≠ Availability`: All classes have 11 9s durability, but availability varies (e.g., One Zone-IA has 99.5% vs. Standard’s 99.99%).
+- `Glacier retrieval options`: Instant (ms), Flexible (mins to hrs), Deep Archive (12+ hrs).
+- `Intelligent-Tiering avoids` retrieval fees and monitors access patterns.
+- `One Zone-IA is riskier`: Data is lost if the AZ fails.
+- Lifecycle policies automate transitioning objects between classes.
+
+Common Mistakes: ⚠️
+
+- Assuming all classes have the same availability (e.g., One Zone-IA is cheaper but less available).
+- Confusing Glacier retrieval tiers (e.g., using Deep Archive for urgent retrievals).
+- Overlooking Intelligent-Tiering for unpredictable access patterns.
+- Ignoring cost tradeoffs (e.g., Standard-IA has lower storage costs but higher retrieval fees).
+
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon S3 lifecycle rules - important things to know </summary>
+
+- Amazon S3 lifecycle rules automate transitioning objects between storage classes (e.g., Standard → Glacier) or deleting objects based on age. Key actions:
+   - `Transitions`: Move objects to cheaper storage classes (e.g., after 30 days).
+   - `Expiration`: Permanently delete objects or delete expired delete markers (for versioned buckets).
+
+Simple end-to-end real-world example: ⭐
+
+- A media streaming service uses lifecycle rules to optimize costs:
+- Transition rule: Move videos from S3 Standard to S3 Standard-IA after 30 days (reduced access frequency).
+- Archive rule: Transition to S3 Glacier Flexible Retrieval after 90 days (long-term archival).
+- Expiration rule: Delete raw footage logs after 365 days (compliance requirements).
+- Incomplete upload cleanup: Abort multipart uploads not completed in 7 days.
+  
+Exam Tips: ⭐
+
+- Minimum age for transitions:
+- Standard → Standard-IA/One Zone-IA: 30 days.
+- Standard → Glacier/Deep Archive: 90 days (varies by storage class).
+- Intelligent-Tiering: No minimum age (immediate tiering).
+- Versioning impacts expiration: Expiration deletes non-current versions if configured.
+- Expiration vs. Transition: Expiration deletes objects; Transition changes storage class.
+- Incomplete uploads: Lifecycle rules can abort uploads stuck for a specified period.
+
+
+Common Mistakes: ⚠️
+
+- `Ignoring minimum age requirements` (e.g., trying to transition to Glacier before 90 days).
+- Confusing expiration with transition (e.g., using expiration to move objects to Glacier).
+- `Overlooking versioning`: Expiration rules may not delete all versions unless configured.
+- `Assuming lifecycle rules apply retroactively` (rules only affect objects uploaded after creation).
+</details>
+
+
+<details>
+<summary>🎯Q.what is S3 requester pays ? who pays by default for access and networking cost ? owner or requester? </summary>
+
+- Amazon `S3 Requester Pays feature` allows bucket owners to charge requesters for data transfer and request costs. 
+- By default, bucket owners pay for all costs associated with their S3 buckets (e.g., storage, data transfer, requests). 
+- With Requester Pays, the requester pays for data transfer and request costs when accessing the bucket. 
+- This feature is useful for sharing data with external users or charging for data access.
+- requester must be authenticated by IAM to access the bucket with requester pays enabled.
+</details>
+
+<details>
+<summary>🎯Q. different methods of object encryption in S3 bucke ?</summary>
+
+- `Server-Side Encryption (SSE)`: Encrypts objects at rest using AWS-managed keys or customer-provided keys.
+  - `SSE-S3`: Uses  AES-256 encryption  and AWS-managed keys. - Enabled by default.
+  - `SSE-KMS`: Uses AWS Key Management Service
+  - `SSE-C`: Uses customer-provided keys (must be managed by the customer).
+  - `Encryption in Transit`: Encrypts data in transit using SSL/TLS.
+     - encryption in flight is enabled by default in S3, is also called as `SSL/TLS` encryption.
+  - DSSE-KMS - DSSE-KMS is just "double encryption based on KMS".
+</details>
+
+
+<details>
+<summary>🎯Q. S3 - CORS important things to know </summary>
+
+- CORS is web security feature that restricts cross-origin HTTP requests (e.g., from a different domain).
+- preflight request is sent by the browser to check if the server allows the request. (Do not miss Stephan's diagram explanation for this)
+- S3 CORS configuration allows you to control which domains can access your S3 resources.
+</details>
+
+<details>
+<summary>🎯Q. What is S3 object lock ?</summary>
+
+- Amazon S3 Object Lock prevents objects from being deleted or modified for a fixed period or indefinitely. 
+- It enforces Write-Once-Read-Many (WORM) compliance. Key features:
+    - Retention Modes:
+      - `Governance Mode`: Objects can’t be deleted/modified unless users have special permissions.
+      - `Compliance Mode`: No one (including root) can delete/modify objects until the retention period expires.
+      - `Retention Period`: Fixed duration (e.g., 7 years) set for objects.
+      - `Legal Hold`: Blocks deletion/modification indefinitely (no retention period required).
+
+Simple end-to-end real-world example: ⭐
+ - A financial institution must comply with SEC regulations:
+ - Enable versioning & Object Lock on the bucket.
+ - Governance Mode: Apply a 3-year retention period for audit logs (internal admins can override with permissions).
+ - Compliance Mode: Apply a 7-year retention for tax records (no override allowed).
+ - Legal Hold: Place on specific documents during litigation (indefinite protection).
+
+Exam Tips: ⭐
+
+- ⭐Object Lock requires versioning⭐ to be enabled on the bucket.
+- Governance vs. Compliance Mode: Governance allows override with permissions; Compliance does not.
+- ⭐Legal Hold works independently of retention periods⭐ (can be applied/removed anytime).
+- Use cases: Regulatory compliance (e.g., FINRA, SEC), legal holds, ⭐ransomware protection (write once and never deletes.⭐)
+- Retention period starts when the object is created (not when the lock is applied).
+
+Common Mistakes: ⚠️
+
+- Confusing Governance and Compliance Modes: ⭐Assuming root can bypass Compliance Mode (they cannot).⭐
+- Forgetting to enable versioning: Object Lock will fail without it.
+- Assuming Legal Hold requires a retention period: It works independently. - means you can apply legal hold without any retention period.
+  - example : if you are in the middle of the litigation and you want to protect the data from deletion, you can apply legal hold without any retention period. even if retention period is set to 7 years, the object will not be deleted until the legal hold is removed.
+- Overlooking retroactive locks: Existing objects aren’t locked automatically unless configured.
+
+</details>
+
+
+<details>
+<summary>🎯Q. AWS Snow family important notes  </summary>
+
+- The AWS Snow Family includes physical devices ⭐(Snowcone, Snowball Edge, Snowmobile)⭐ designed for secure, offline data transfer and edge computing in environments with limited connectivity or massive data volumes.
+
+Real-World Example: ⭐
+- A media company with 500 TB of raw footage in a remote location uses Snowball Edge (Storage Optimized) to transfer data to AWS. They process some data on-device using EC2 instances (edge computing) before shipping. For a 100 PB data lake migration, they use Snowmobile (truck-sized storage).
+
+Exam Tips: ⭐
+
+- Device Selection:
+    - `Snowcone`: Smallest (8 TB), ideal for edge computing/light data transfer.
+    - `Snowball Edge`: Larger (80 TB) with compute/storage options (Compute Optimized vs. Storage Optimized).
+    - `Snowmobile`: Exabyte-scale (100 PB+).
+Use Cases:
+    - Offline data transfer (slow/no internet).
+    - Edge computing (IoT, ML inference, preprocessing).
+    - Encryption: All data is automatically encrypted with AWS KMS.
+    - Data Transfer: Jobs are tracked via AWS OpsHub (GUI) or CLI.
+
+Common Mistakes: ⚠️
+
+- Confusing Snowball Edge with Storage Gateway:
+    - Snowball = one-time transfer; Storage Gateway = ongoing hybrid storage.
+- Assuming online transfer (e.g., DataSync) is always better:
+    - Snowball is cheaper/faster for 10+ TB.
+- Ignoring edge computing capabilities:
+    - ⭐Snowball Edge can run EC2 instances or Lambda functions.⭐
+
+
+</details>
+
+<details>
+<summary>🎯Q. what is AWS FSx ? what are different services/product types ? </summary>
+
+- AWS FSx is a fully managed file storage service that simplifies deploying and managing high-performance file systems. 
+- It supports multiple file system types optimized for specific workloads:
+    - FSx for Windows File Server: SMB-based, integrates with Active Directory, ideal for Windows workloads.
+    - FSx for Lustre: Designed for HPC, machine learning, and analytics, optimized for fast processing of large datasets.
+    - FSx for NetApp ONTAP: Enterprise-grade NAS storage with features like snapshots, replication, and multi-protocol support.
+    - FSx for OpenZFS: Fully managed OpenZFS file system for Linux-based applications requiring POSIX compliance.
+
+Common Mistakes: ⚠️
+
+- Confusing EFS and FSx: Using EFS for Windows workloads (EFS is Linux/NFS-only).
+- Overlooking Lustre’s temporary nature: Assuming Lustre is ideal for long-term storage (it’s optimized for compute-heavy, short-term tasks).
+</details>
+
+Exam Tips: ⭐
+
+- Understand the three types of gateways:
+    - `File Gateway`: For storing files as objects in S3.
+    - `Volume Gateway`: For block storage, either cached (primary data in S3, frequently accessed data locally) or stored (entire dataset on-premises, asynchronously backed up to AWS).
+    - `Tape Gateway`: For virtual tape libraries, used for backup and archival.
+    - Storage Gateway is ideal for hybrid cloud scenarios, enabling on-premises applications to use AWS storage.
+It supports data encryption in transit (SSL/TLS) and at rest (AWS KMS).
+
+<details>
+<summary>🎯Q. AWS Gateway </summary>
+
+- AWS Storage Gateway is a hybrid cloud storage service that connects on-premises environments with AWS Cloud storage. 
+- It provides `seamless integration between on-premises applications and AWS storage services like Amazon S3, Amazon S3 Glacier,` Amazon EBS, and AWS Backup. 
+- It `supports three types of gateways: File Gateway, Volume Gateway, and Tape Gateway.`
+
+</details>
+
+<details>
+<summary>🎯Q. Difference AWS Transfer Family, AWS Storage Gateway and DataSync </summary>
+
+- `AWS Transfer Family`: Focus on its use for external file transfers using SFTP, FTPS, or FTP.
+- `AWS Storage Gateway`: Understand its hybrid cloud nature and the three types (File, Volume, Tape).
+- `AWS DataSync`: Remember it’s optimized for fast, automated data transfers between on-premises and AWS storage.
+- Use Transfer Family for external file sharing, Storage Gateway for hybrid cloud integration, and DataSync for large-scale data migration.
+
+Common Mistakes: ⚠️
+
+- Confusing AWS Transfer Family with AWS DataSync. Transfer Family is for external file transfers, while DataSync is for large-scale data migration.
+- Overlooking the hybrid cloud capabilities of AWS Storage Gateway. It’s not just for cloud storage but bridges on-premises and AWS.
+</details>
+
+🎯 ⭐One liners notes⭐ 🎯
+- Explicit DENY in an IAM Policy will take precedence over an S3 bucket policy.
+- S3 batch operations : used for bulk operations like copying objects, deleting objects, etc.
+- S3 lens - used for analyzing the S3 bucket and its objects.
+- ⭐`byte range fetches`⭐ - used to download a specific range of bytes from the object.
+- `MFA delete` - used to enable the MFA delete for the versioned bucket to prevent accidental deletion of the objects.
+- Glacier volt - used to retrieve the data from the glacier vault based on WOMP(Write Once, Many times) policy.
+- `S3 object lock` - used to lock the object for a specific period of time to prevent accidental deletion or modification based on WOMP(write once, many times) policy.
+- With SSE-KMS, the encryption happens in AWS, and the encryption keys are managed by AWS but you have full control over the rotation policy of the encryption key. Encryption keys stored in AWS.
+- MFA Delete forces users to use MFA codes before deleting S3 objects. It's an extra level of security to prevent accidental deletions.
+- legal hold - used to protect the object from deletion or modification ⭐indefinitely⭐. even if the retention period is set to 7 years, the object will not be deleted until the legal hold is removed.
+- AWS Transfer Family: Used to transfer files to AWS storage services like S3, EFS, and FSx for Windows File Server.
+- AWS Storage Gateway: Used to connect on-premises environments with AWS Cloud storage, enabling hybrid cloud storage solutions.
+- Data-Sync : move large amounts of data between on-premises storage and AWS storage services like S3, EFS, and FSx.
+
+
+## CloudFront and AWS Global Accelerator
+
+<details>
+<summary>🎯Q. what is CloudFront ?</summary>
+
+- AWS Cloudfront is Content Delivery Network (CDN) service that accelerates the delivery of web content to users worldwide.
+-  It improves the read performance and content is cached at the edge locations.
+- "Edge Location" : this is the location where the content will be cached. this is separate to an AWS Region/AZ.
+- cloudfront origin can be S3 bucket, EC2 instance, ELB, or Route 53.
+
+Simple end-to-end real-world example: ⭐
+- A company hosts a website with product images stored in an S3 bucket in us-east-1. Users in Europe experience slow load times. By deploying CloudFront:
+- For dynamic content (e.g., personalized recommendations), Lambda@Edge modifies responses at the edge.
+
+Exam Tips: ⭐
+
+- `Edge vs. Regional Caches`: Edge locations cache content globally; regional caches (e.g., S3) are per-region.
+    - regional cache means the cache is stored in the specific region only. reginal cache is achieved using the cloudfront regional edge cache.
+- `Origin Types`: Supports S3, ALB, EC2, on-premises, or custom HTTP servers.
+- `TTL & Cache Behaviors`: Control caching duration and path-based routing (e.g., /images/* cached longer than /api/*).
+- `Security`: SSL/TLS via ACM, OAI (Origin Access Identity) for secure S3 access, WAF/Shield for DDoS.
+- `Lambda@Edge`: Customize content at edge (e.g., A/B testing, header modification).
+    - Lambda@Edge is used to modify the request or response at the edge locations itself
+    - simple real scenario :  You have a website that serves different content based on the user's country. You want to use Lambda@Edge to modify the response headers to include a custom header indicating the user's country.
+- `Cost`: Data transfer out charges apply; invalidations are paid.
+- `Geo-Restriction`: Allow/block countries via whitelist/blacklist.
+
+Common Mistakes: ⚠️
+
+- `Assuming all content is cached`: Dynamic content (e.g., APIs) requires explicit caching configuration.
+- `Long TTLs without versioning`: Leads to stale content; use image_v2.jpg instead of invalidating.
+- `Confusing CloudFront with S3 Cross-Region Replication`: CloudFront caches; replication duplicates data.
+- `Overlooking HTTPS redirects`: To ensure CloudFront enforces HTTPS and avoids mixed-content issues, you can configure a CloudFront distribution to redirect HTTP requests to HTTPS.
+
+</details>
+
+<details>
+<summary>🎯Q. AWS global accelerator notes </summary>
+
+- AWS Global Accelerator is a networking service that improves the availability and performance of applications by directing traffic through AWS’s global network infrastructure. 
+- It ⭐uses static anycast IP addresses⭐ to route user requests to the nearest edge location, then optimally routes traffic to healthy endpoints (e.g., EC2, ALB, NLB) across AWS regions. 
+- Key features include built-in health checks, automatic failover, and DDoS protection via AWS Shield.
+
+Simple end-to-end real-world example for better visualization: ⭐
+A global e-commerce app hosts backend servers in us-east-1 (N. Virginia) and ap-southeast-1 (Singapore). Without Global Accelerator, users in Europe might connect directly to the Singapore region, causing high latency.
+With Global Accelerator:
+
+- Users in Europe hit the nearest AWS edge location (e.g., Frankfurt).
+- Traffic is routed over AWS’s backbone (faster than public internet) to the optimal healthy endpoint (e.g., us-east-1 if Singapore is overloaded).
+- If the Singapore ALB fails health checks, traffic automatically shifts to the Virginia ALB, ensuring minimal downtime.
+
+Exam Tips: ⭐
+
+Global Accelerator vs. CloudFront:
+- Use Global Accelerator for TCP/UDP traffic, non-HTTP use cases (e.g., gaming, IoT), or apps needing static IPs.
+- Use CloudFront for HTTP/HTTPS content caching (static/dynamic) and latency reduction for web apps.
+- `Static Anycast IPs`: Provides two static IPs from different AWS regions. Ideal for whitelisting scenarios (e.g., APIs, on-premises firewall rules).
+- `Health Checks`: Monitors endpoint health (e.g., ALB, EC2) and reroutes traffic if unhealthy. Faster failover than Route 53.
+- `Performance`: ⭐Uses AWS backbone network⭐, reducing jitter and latency compared to public internet routing.
+- `Integration`: Works with Elastic IPs, EC2, ALB, NLB, and supports cross-region endpoints.
+
+
+Common Mistakes: ⚠️
+
+- Confusing Global Accelerator with CloudFront (e.g., using Accelerator for caching static content).
+- ⭐Assuming it requires DNS changes⭐ (it uses IPs; Route 53 manages DNS). means you don't have to change the DNS records to use the global accelerator you just have to use the static anycast IP address provided by the global accelerator.
+- Overlooking that it does not cache content (unlike CloudFront).
+- `Forgetting it’s global`, not region-specific. You don’t deploy it per region.
+- `Ignoring the cost impact`: Global Accelerator charges for data transfer and hourly usage (unlike CloudFront’s per-request model).
+</details>
+
+
+<details>
+<summary>🎯Q. Difference AWS Global Accelerator vs CloudFront </summary>
+
+- `AWS Global Accelerator optimizes traffic routing for TCP/UDP applications using static IPs and AWS’s backbone network`, focusing on availability and performance for non-HTTP use cases.
+- `Amazon CloudFront is a CDN` (Content Delivery Network) that caches static/dynamic HTTP/HTTPS content at edge locations, reducing latency for end users.
+
+Simple end-to-end real-world example: ⭐
+
+- `Global Accelerator`: A multiplayer gaming app uses UDP for real-time communication. Global Accelerator routes traffic from players in Asia to the nearest healthy game server in ap-northeast-1 (Tokyo) via AWS’s backbone, ensuring low latency and failover during outages.
+- `CloudFront`: A news website caches images and articles at edge locations. A user in Paris retrieves content from the Frankfurt edge location instead of the origin server in us-east-1, reducing load times.
+
+Exam Tips: ⭐
+
+⭐Protocols & Use Cases:⭐
+- Global Accelerator: Ideal for TCP/UDP (e.g., gaming, IoT, APIs) and apps needing static IPs.
+- CloudFront: Designed for HTTP/HTTPS (e.g., websites, video streaming).
+
+⭐Caching:⭐
+- CloudFront caches content at edge locations
+- Global Accelerator does not cache (only optimizes routing). IP Addresses:
+
+⭐IP Addresses:⭐
+- Global Accelerator provides static anycast IPs.
+- CloudFront uses domain-specific URLs (e.g., d123.cloudfront.net).
+
+⭐Failover Speed:⭐
+- Global Accelerator reroutes traffic in seconds using health checks. 
+- CloudFront relies on TTL-based DNS failover (slower).
+
+Common Mistakes: ⚠️
+
+- Using CloudFront for UDP traffic (it only supports HTTP/HTTPS).
+- Assuming Global Accelerator caches content (it only accelerates routing).
+- Overlooking cost differences:
+    - CloudFront charges per request/data transfer out.
+    - Global Accelerator charges hourly + data processing fees.
+- Confusing edge locations:
+    - CloudFront caches content at edges.
+    - Global Accelerator uses edges **only for traffic entry, not storage.**
+</details>
 
 <br>
 <br>
