@@ -1210,6 +1210,7 @@ Common Mistakes: ⚠️
 - Overlooking Lustre’s temporary nature: Assuming Lustre is ideal for long-term storage (it’s optimized for compute-heavy, short-term tasks).
 </details>
 
+
 Exam Tips: ⭐
 
 - Understand the three types of gateways:
