@@ -18,6 +18,13 @@ Study material
 8. <a href="#Amazon-S3-and-other-storage-services">Amazon S3 and other storage services</a>
 9. <a href="#CloudFront-and-AWS-Global-Accelerator">CloudFront and AWS Global Accelerator</a>
 10. <a href="#SQS-SNS">SQS SNS</a>
+11. <a href="#ECS-EKS">ECS EKS</a>
+12. <a href="#Lambda">Lambda</a>
+13. <a href="#DynamoDB">DynamoDB</a>
+14. <a href="#API-Gateway">Api Gateway</a>
+15. <a href="#Step Functions">Step Functions</a>
+16. <a href="#Cognito">cognito</a>
+17. <a href="#Databases-in-aws">Databases In AWS</a>
 
 
 ## Introduction
@@ -1232,9 +1239,9 @@ Exam Tips: ⭐
 <details>
 <summary>🎯Q. Difference AWS Transfer Family, AWS Storage Gateway and DataSync </summary>
 
-- `AWS Transfer Family`: Focus on its use for external file transfers using SFTP, FTPS, or FTP.
+- `AWS Transfer Family`: Focus on its use for ⭐external file transfers⭐ using SFTP, FTPS, or FTP.
 - `AWS Storage Gateway`: Understand its hybrid cloud nature and the three types (File, Volume, Tape).
-- `AWS DataSync`: Remember it’s optimized for fast, automated data transfers between on-premises and AWS storage.
+- `AWS DataSync`: Remember it’s ⭐optimized for fast, automated data transfers⭐ between on-premises and AWS storage.
 - Use Transfer Family for external file sharing, Storage Gateway for hybrid cloud integration, and DataSync for large-scale data migration.
 
 Common Mistakes: ⚠️
@@ -1249,13 +1256,13 @@ Common Mistakes: ⚠️
 - S3 lens - used for analyzing the S3 bucket and its objects.
 - ⭐`byte range fetches`⭐ - used to download a specific range of bytes from the object.
 - `MFA delete` - used to enable the MFA delete for the versioned bucket to prevent accidental deletion of the objects.
-- Glacier volt - used to retrieve the data from the glacier vault based on WOMP(Write Once, Many times) policy.
+- Glacier volt - used to retrieve the data from the glacier vault based on WOMP(Write Once, read Many times) policy.
 - `S3 object lock` - used to lock the object for a specific period of time to prevent accidental deletion or modification based on WOMP(write once, many times) policy.
 - With SSE-KMS, the encryption happens in AWS, and the encryption keys are managed by AWS but you have full control over the rotation policy of the encryption key. Encryption keys stored in AWS.
 - MFA Delete forces users to use MFA codes before deleting S3 objects. It's an extra level of security to prevent accidental deletions.
 - legal hold - used to protect the object from deletion or modification ⭐indefinitely⭐. even if the retention period is set to 7 years, the object will not be deleted until the legal hold is removed.
 - AWS Transfer Family: Used to transfer files to AWS storage services like S3, EFS, and FSx for Windows File Server.
-- AWS Storage Gateway: Used to connect on-premises environments with AWS Cloud storage, enabling hybrid cloud storage solutions.
+- `AWS Storage Gateway`: Used to connect on-premises environments with AWS Cloud storage, enabling hybrid cloud storage solutions.
 - Data-Sync : move large amounts of data between on-premises storage and AWS storage services like S3, EFS, and FSx.
 - Snowball Edge `comes with computing capabilities and allows you to pre-process the data while it's being moved into Snowball`.
 
@@ -1301,7 +1308,7 @@ Common Mistakes: ⚠️
 
 - AWS Global Accelerator is a networking service that improves the availability and performance of applications by directing traffic through AWS’s global network infrastructure. 
 - It ⭐uses static anycast IP addresses⭐ to route user requests to the nearest edge location, then optimally routes traffic to healthy endpoints (e.g., EC2, ALB, NLB) across AWS regions. 
-- Key features include built-in health checks, automatic failover, and DDoS protection via AWS Shield.
+- Key features include `built-in health checks`, automatic failover, and DDoS protection via AWS Shield.
 
 Simple end-to-end real-world example for better visualization: ⭐
 A global e-commerce app hosts backend servers in us-east-1 (N. Virginia) and ap-southeast-1 (Singapore). Without Global Accelerator, users in Europe might connect directly to the Singapore region, causing high latency.
@@ -1354,8 +1361,8 @@ Exam Tips: ⭐
 - Global Accelerator does not cache (only optimizes routing). IP Addresses:
 
 ⭐IP Addresses:⭐
-- Global Accelerator provides static anycast IPs.
-- CloudFront uses domain-specific URLs (e.g., d123.cloudfront.net).
+- Global Accelerator `provides static anycast IPs`.
+- CloudFront uses `domain-specific URLs` (e.g., d123.cloudfront.net).
 
 ⭐Failover Speed:⭐
 - Global Accelerator reroutes traffic in seconds using health checks. 
@@ -1370,7 +1377,7 @@ Common Mistakes: ⚠️
     - Global Accelerator charges hourly + data processing fees.
 - Confusing edge locations:
     - CloudFront caches content at edges.
-    - Global Accelerator uses edges **only for traffic entry, not storage.**
+    - `Global Accelerator uses edges **only for traffic entry, not storage.**`
 </details>
 
 
@@ -1464,9 +1471,347 @@ Common Mistakes: ⚠️
 - SQS, SNS, and Kinesis are all regional services, meaning they are available across all AZs within a specific region.
 - Amazon MQ is for legacy protocol compatibility; SQS/SNS are for cloud-native apps.
 
+
+
+
+## ECS EKS
+
+<details>
+<summary>🎯Q.what is ECS (Elastic Compute Service) and important notes. </summary>
+
+- Amazon ECS (Elastic Container Service) is a fully managed container orchestration service that simplifies deploying, managing, and scaling Docker containers. 
+- It supports two launch modes: EC2 (manage your own EC2 instances) and Fargate (serverless, no infrastructure management). 
+- ECS auto-scaling adjusts tasks or instances based on demand, and integrates with AWS services like ALB, CloudWatch, and IAM.
+
+Real-World Example: ⭐
+A company runs a microservices-based e-commerce app:
+
+- Frontend service (Fargate): Serverless containers scale automatically during peak traffic.
+- Backend service (EC2 mode): Runs on reserved EC2 instances for cost savings, with cluster auto-scaling.
+- Load balancer: ALB routes traffic to services.
+- Auto Scaling Service-level scaling for tasks (CPU utilization) + EC2 instance scaling for the cluster.
+  means : if the CPU utilization of the task is high, then the ECS will automatically scale the task to handle the load.
+
+
+⭐Exam Tips: ⭐
+
+- `Fargate vs EC2`:
+    - Fargate: No EC2 management, pay per task (vCPU/memory), ideal for unpredictable workloads.
+    - EC2 mode: Control over instances, cheaper for steady workloads, requires ASG for scaling.
+  
+- `Auto Scaling`:
+    - `Service Auto Scaling`: Scales tasks (horizontal) based on CloudWatch metrics.
+    - `Cluster Auto Scaling (EC2 only)`: Scales EC2 instances via ASG.
+
+- `Task Definitions`: Blueprint for containers (image, CPU/memory, networking).
+    - `Networking`: Fargate requires VPC (`each task gets an ENI`); EC2 uses host/awsvpc mode.
+    - `IAM Roles`: Assign roles at the task level (not EC2 instance role).
+
+
+⚠️Common Mistakes: ⚠️
+
+- ⭐Confusing service auto-scaling (tasks) with cluster auto-scaling (EC2 instances)⭐.
+- Forgetting Fargate tasks require VPC configuration (subnets, security groups).
+- Using EC2 instance roles instead of task roles for container permissions.
+- `Overprovisioning CPU/memory in Fargate` (billed for allocated resources, not usage).
+
+</details>
+
+<details>
+<summary>🎯Q. ECR, EKS, AppRunner notes</summary>
+
+- Amazon ECR: Private Docker container registry for storing, managing, and deploying container images.
+- Amazon EKS: Managed Kubernetes service for running containerized applications using Kubernetes.
+- AWS App Runner: Fully managed service to deploy containerized web apps/APIs without infrastructure management.
+- ECS: Elastic Container Service for running containers with AWS-native orchestration. Supports Fargate (serverless) and EC2 (self-managed instances) launch modes.
+
+
+Real-World Example: ⭐
+A company builds a microservices-based e-commerce app:
+
+- ECR: Store Docker images for product, cart, and payment services.
+- EKS: Orchestrate Kubernetes clusters for scalable, complex microservices with custom networking.
+- App Runner: Deploy the frontend (React) container with automatic scaling and HTTPS.
+- ECS (Fargate): Run backend APIs with serverless containers, auto-scaled based on CPU usage.
+
+
+Exam Tips: ⭐
+
+ECR vs EKS vs App Runner:
+- Use ECR for storing container images (like Docker Hub for AWS).
+- Use EKS for Kubernetes-specific workloads (e.g., Helm charts, custom scaling).
+- Use App Runner for simple, fully managed deployments (CI/CD integrated).
+
+ECS Auto Scaling:
+- Target Tracking: Scale ECS tasks based on CloudWatch metrics (CPU/Memory).
+- Scheduled Scaling: Predictable traffic patterns (e.g., peak hours).
+
+Fargate vs EC2:
+- Fargate = no EC2 management (serverless), higher cost.
+- EC2 mode = control over instances, cheaper for large workloads.
+
+
+Common Mistakes: ⚠️
+
+- Confusing ECS (AWS-native) with EKS (Kubernetes).
+- Assuming App Runner supports non-containerized apps (it’s only for containers).
+- Overlooking Fargate cost implications for long-running, high-traffic apps.
+   - because fargate cost is based on the vCPU and memory allocated to the task, so if you allocate more vCPU and memory to the task, then you will be charged more.
+- Forgetting that ECR requires IAM policies (not resource-based policies) for access control.
+
+</details>
+
+## Lambda
+
+<details>
+<summary>🎯Q. what is lambda? lambda@edge? </summary>
+
+- AWS Lambda is serverless compute for running code without managing servers. Lambda@Edge allows running Lambda functions at CloudFront edge locations for low-latency responses. Concurrency refers to the number of Lambda executions running simultaneously (default: 1,000/account/region).
+
+Simple real-world example: ⭐
+Imagine an e-commerce website:
+
+- Lambda: Processes orders (backend API) when a user checks out.
+- Lambda@Edge: Dynamically resizes product images based on the user’s device type (e.g., mobile vs desktop) before the image is cached by CloudFront.
+- Concurrency: During Black Friday, Lambda scales to 500 concurrent executions to handle traffic spikes.
+
+Common Mistakes: ⚠️
+
+- Thinking Lambda@Edge functions can access VPC resources (they can’t).
+- Forgetting Lambda@Edge has shorter timeouts (e.g., 5 seconds for viewer request events).
+- Ignoring cold starts (initial latency) for time-sensitive applications.
+- Not setting reserved concurrency for mission-critical functions, leading to resource starvation.
+
+</details>
+
+
+<details>
+<summary>🎯Q. What is Lambda cold start and important points to know for solution architecture? </summary>
+
+- A Lambda cold start is the latency introduced when AWS Lambda initializes a new execution environment (runtime, code, dependencies) for a function that hasn’t been recently used. This occurs during the first invocation or after periods of inactivity.
+
+Simple real-world example: ⭐
+A ride-sharing app uses Lambda for fare calculation:
+- Cold Start: A user opens the app at 5 AM (low traffic). Lambda must initialize a new instance, causing a 1-2 second delay.
+- Warm Start: Subsequent requests reuse the initialized instance, responding in milliseconds.
+
+
+Exam Tips: ⭐
+
+- Factors increasing cold starts:
+    - Runtimes: Java/.NET have longer cold starts vs. Python/Node.js.
+    - Package size: Larger deployment packages (e.g., 250MB+) slow initialization. 
+    - VPCs: Lambda in a VPC adds ENI setup time (~10+ seconds).
+
+- Mitigation strategies:
+    - Use Provisioned Concurrency (pre-warms instances).
+    - Minimize dependencies & use layers for reusable code.
+    - `Avoid VPCs unless necessary`.
+    - `Use SnapStart (for Java functions)` to cache runtime state.
+
+Common Mistakes: ⚠️
+
+- Assuming all runtimes have the same cold start duration (Java vs. Python).
+- Overlooking Provisioned Concurrency for latency-sensitive apps (e.g., APIs).
+- Deploying Lambda in a VPC for non-critical use cases, increasing cold starts.
+- Ignoring initialization code optimization (e.g., moving heavy setup outside the handler).
+   meaning : if you have some heavy initialization code that is not required to be executed every time the lambda function is invoked, then you can move that code outside the handler so that it will be executed only once when the lambda function is initialized.
+
+</details>
+
+## DynamoDB
+
+<details>
+<summary>🎯Q. Dynamo DB important notes </summary>
+
+- Amazon DynamoDB is a fully managed, serverless NoSQL database service (key-value & document) offering ⭐single-digit millisecond performance⭐, ⭐automatic scaling⭐, ⭐built-in high availability with multi-AZ replication⭐, and features like global tables, TTL, and streams. ⭐It's ideal for scalable, low-latency applications.⭐
+
+⭐Real-World Example: ⭐
+An e-commerce platform uses DynamoDB to:
+
+- Store product catalogs (partition key = ProductID) and user sessions (TTL deletes expired sessions).
+- Use DAX to cache frequently viewed product pages, reducing read latency.
+- `Enable global tables for active-active replication` across regions (US/EU) for low-latency access.
+   active-active replication means the data is replicated across multiple regions and the data can be read and written from any region.
+- `Process real-time order updates via DynamoDB Streams`, triggering Lambda to update inventory.
+- Restore accidentally deleted data using `point-in-time recovery`.
+  how this is achieved ? : point-in-time recovery is achieved by enabling the point-in-time recovery feature in the dynamoDB table, this feature allows you to restore the data to any point in time within the retention period.
+
+
+Exam Tips: ⭐
+
+- `DAX vs ElastiCache`: DAX(DynamoDB Accelerator) is purpose-built for DynamoDB (caches query/results), while ElastiCache (Redis/Memcached) is general-purpose (caches app data, API responses).
+- `Global Tables`: Require DynamoDB Streams enabled for cross-region replication (active-active).
+- `TTL`: Automatically deletes expired items (e.g., sessions, logs) to reduce costs.
+- `Stream Processing`: Triggers Lambda for real-time analytics/auditing (e.g., fraud detection).
+- `Point-in-Time Recovery`: Restores table to any point in the last 35 days (protects against accidental writes/deletes).
+- Scan vs Query:
+    - Query: Efficient (uses partition/sort keys).
+    - Scan: Inefficient (reads entire table) – avoid in production.
+- Analytics Integration:
+    - Use DynamoDB Accelerator (DAX) for read-heavy apps.
+    - `For complex analytics, export data to Amazon Redshift/Athena via S3.`
+
+Common Mistakes: ⚠️
+
+- Using ElastiCache instead of DAX for DynamoDB-specific caching.
+- Forgetting to enable DynamoDB Streams for global tables.
+   means : if you want to use the global tables feature in the dynamoDB, then you have to enable the dynamoDB streams in the table ⭐because the global tables feature uses the dynamoDB streams to replicate the data across the regions⭐.
+- Assuming TTL deletes data instantly (can take up to 48 hours).
+- Over-provisioning RCU/WCU instead of enabling auto-scaling.
+- Ignoring partition key design, leading to "hot partitions" and throttling.
+
+</details>
+
+## API Gateway
+
+<details>
+<summary>🎯Q. what is API gateway and important notes </summary>
+
+- Amazon API Gateway is a fully managed service for creating, deploying, and managing RESTful and `WebSocket APIs`.
+- It acts as a "front door" for applications to access data, business logic, or functionality from backend services (e.g., Lambda, EC2, HTTP endpoints).
+
+Exam Tips: ⭐
+
+- `Endpoint Types`:
+    - `Edge-optimized`: Uses CloudFront globally. Best for public APIs with geographically distributed users.
+    - `Regional`: Serves requests from a single region. Use for APIs where clients are in the same region.
+    - `Private`: Accessible only within a VPC via VPC Endpoint (Interface type).
+- `Caching`: API Gateway can cache responses to reduce backend load.
+- `Security`: Integrates with IAM, Cognito, or custom authorizers for authentication/authorization.
+- `Throttling`: Limits requests per second to prevent abuse.
+- `Monitoring`: CloudWatch metrics/logs, X-Ray tracing, and usage plans for API keys.
+
+
+</details>
+
+## Step Functions
+
+<details>
+<summary>🎯Q. Template 1 </summary>
+
+- API Step Functions refers to using AWS Step Functions ⭐(a serverless orchestration service)⭐ to design, automate, and coordinate multi-step workflows involving AWS services, APIs, and custom logic. 
+- These workflows (state machines) handle complex processes like retries, error handling, parallel execution, and human approval steps.
+
+
+Simple Real-World Example: ⭐
+Use Case: E-commerce Order Processing
+
+- Start → A customer places an order via an API Gateway.
+- Check Inventory → Step Functions invokes a Lambda function to verify product availability in DynamoDB.
+- Process Payment → Call an external payment API (e.g., Stripe) via Lambda.
+- Parallel Execution →
+  - Update order status in DynamoDB.
+  - Send an order confirmation email via SNS.
+- Handle Errors → If payment fails, trigger a Lambda to notify the customer via SQS.
+- End → Order workflow completes.
+
+
+Exam Tips: ⭐
+
+- `Step Functions vs. Lambda`: Use Step Functions for multi-step workflows; Lambda for single-task functions.
+- `State Types`: Know key states (Task, Choice, Parallel, Wait, Fail) and their use cases.
+- `Error Handling`: Use Retry and Catch blocks to manage service failures (e.g., Lambda throttling).
+
+Execution Types:
+- `Standard Workflow`: Long-running (up to 1 year), auditable (e.g., order processing).
+- `Express Workflow`: Short-lived (5 mins), high-volume (e.g., IoT data processing).
+
+
+Common Mistakes: ⚠️
+
+- `Direct Service Calls`: Assuming Step Functions can call all AWS services directly (e.g., DynamoDB requires a Lambda proxy).
+- `Execution Time`: Using Standard Workflow for high-frequency, short tasks (use Express instead).
+- `State Machine Limits`: Forgetting max execution duration (1 year for Standard, 5 mins for Express).
+</details>
+
+## Cognito
+
+<details>
+<summary>🎯Q. cognito notes </summary>
+
+- Amazon Cognito is an AWS service that provides user authentication, authorization, and management for web/mobile apps. It has two main components:
+    - `User Pools`: Secure user directories for sign-up/sign-in (authentication).
+    - `Identity Pools`: Grant temporary AWS credentials to access AWS services (authorization).
+
+Simple real-world example: ⭐
+A travel app lets users sign up with email or Google.
+- `User Pool` verifies credentials (e.g., email/password or Google token) and returns a JWT.
+- `Identity Pool` uses the JWT to grant temporary AWS credentials, allowing the app to upload trip photos to an S3 bucket.
+
+Exam Tips: ⭐
+
+- `User Pools ≠ Identity Pools`: User Pools handle authentication (identity verification), while Identity Pools handle authorization (AWS resource access).
+- `Federation`: Cognito supports social (Google/Facebook) and enterprise (SAML/OIDC) identity providers.
+- `MFA & Security`: User Pools enforce MFA, password policies, and account recovery.
+- Cognito Sync is deprecated; use AppSync for syncing user data across devices.
+
+Common Mistakes: ⚠️
+
+- Assuming User Pools alone grant AWS access (they don’t; use Identity Pools for credentials).
+- Forgetting to configure IAM roles for Identity Pools, leading to permission errors.
+- `Confusing Cognito with IAM roles for EC2/Lambda` (Cognito is for end-users, IAM roles for AWS services).
+
+</details>
+
+
+⭐One liners notes⭐
+- DynamoDB Accelerator (DAX) is a fully managed, highly available, in-memory cache for DynamoDB that delivers up to 10x performance improvement. It caches the most frequently used data, thus offloading the heavy reads on hot keys off your DynamoDB table, hence preventing the "ProvisionedThroughputExceededException" exception.
+- DynamoDB Streams allows you to capture a ⭐time-ordered sequence of item-level modifications in a DynamoDB table⭐. It's integrated with AWS Lambda so that you create triggers that automatically respond to events in real-time.
+- An Edge-Optimized API Gateway is best for geographically distributed clients. API requests are routed to the nearest CloudFront Edge Location which improves latency. The API Gateway still lives in one AWS Region.
+- Security groups are used exclusively for VPC-based resources – ⭐primarily EC2 instances (and also for other services like RDS, ELB, Lambda, etc. ⭐when they run inside a VPC⭐).⭐
+
+
+
+
+## Databases in AWS
+
+<details>
+<summary>🎯Q. Database types and use cases</summary>
+
+- `Relational (RDS, Aurora)`: Structured data with ACID transactions (e.g., customer records).
+- `NoSQL (DynamoDB)`: Flexible schemas, high scalability (e.g., user sessions).
+- `In-Memory (ElastiCache)`: Low-latency caching (e.g., real-time leaderboards).
+- `Document (DocumentDB)`: JSON-like data (e.g., product catalogs).
+- `Graph (Neptune)`: Relationships (e.g., fraud detection).
+- `Time-Series (Timestream)`: Time-stamped data (e.g., IoT sensors).
+- `Warehouse (Redshift)`: Analytics (e.g., business reports).
+
+Simple Real-World Example: ⭐
+An e-commerce platform uses:
+
+- RDS (MySQL): Orders, payments (ACID compliance).
+- DynamoDB: Product inventory (scales for flash sales).
+- Redshift: Sales trend analysis (petabyte-scale queries).
+- ElastiCache (Redis): Carts and recommendations (sub-millisecond latency).
+- Neptune: "Customers who bought this also bought..." (graph relationships).
+- Timestream: Monitor user activity timestamps (clickstream analytics).
+
+Exam Tips: ⭐
+
+- Key Scenarios:
+    - `DynamoDB`: Serverless apps, high throughput, low-latency (e.g., gaming leaderboards)., single digit miliseconds latency.
+    - `Redshift vs. RDS`: Redshift for analytics (OLAP), RDS for transactions (OLTP).
+    - `Aurora`: High availability (⭐6 copies across AZs⭐), auto-scaling.
+    - `ElastiCache`: Use when latency is critical (session stores, real-time dashboards).
+    - `Timestream`: IoT, DevOps monitoring (time-ordered data).
+
+
+Common Mistakes: ⚠️
+
+- Using RDS for unstructured data → Use DynamoDB or DocumentDB.
+- Confusing Redshift (analytics) with RDS (transactions).
+- Ignoring caching → Results in unnecessary database load/high latency.
+- Choosing DynamoDB for complex joins → Relational DBs are better here.
+- Overlooking Neptune for relationship-heavy data (e.g., social networks).
+
+</details>
+
+
 <br>
 <br>
 ********************************************* IGNORE BELOW THIS LINES
+
 
 
 
@@ -1511,7 +1856,7 @@ Emojis used
 
 
 🚀 - Questions to answer later <br>
-Q. what is bursting meaning ? overall as a concept in the cloud ? <br>
+Q. what is bursting meaning ? overall as a concept in the cloud ? <br> what does it mean by burst workload?
 Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
 Q. Difference between IPV4 vs IPV6 and why we have IPV6 ? <br>
 
