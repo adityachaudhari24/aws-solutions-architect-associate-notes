@@ -24,7 +24,7 @@ Study material
 14. <a href="#API-Gateway">Api Gateway</a>
 15. <a href="#Step Functions">Step Functions</a>
 16. <a href="#Cognito">cognito</a>
-17. <a href="#Databases-in-aws">Databases In AWS</a>
+17. <a href="#Databases-in-aws-and-analytics">Databases In AWS and analytics</a>
 
 
 ## Introduction
@@ -1651,6 +1651,9 @@ Exam Tips: ⭐
 - Analytics Integration:
     - Use DynamoDB Accelerator (DAX) for read-heavy apps.
     - `For complex analytics, export data to Amazon Redshift/Athena via S3.`
+- Billing: On-demand vs. provisioned capacity (provisioned requires RCU/WCU planning).
+- DAX: Use for read-heavy apps needing microsecond latency (caches frequent queries).
+- Streams: Capture real-time data changes (e.g., trigger Lambda for order processing).
 
 Common Mistakes: ⚠️
 
@@ -1764,7 +1767,7 @@ Common Mistakes: ⚠️
 
 
 
-## Databases in AWS
+## Databases in AWS and analytics
 
 <details>
 <summary>🎯Q. Database types and use cases</summary>
@@ -1804,8 +1807,251 @@ Common Mistakes: ⚠️
 - Ignoring caching → Results in unnecessary database load/high latency.
 - Choosing DynamoDB for complex joins → Relational DBs are better here.
 - Overlooking Neptune for relationship-heavy data (e.g., social networks).
+</details>
+
+
+<details>
+<summary>🎯Q. DocumentDB </summary>
+
+- Amazon DocumentDB is a fully managed, MongoDB-compatible database service designed for storing, querying, and processing JSON-based document workloads. It separates compute and storage layers (like Aurora) for scalability, high availability, and automatic storage scaling.
+
+Simple real-world example: ⭐
+- A social media app stores user profiles with dynamic attributes (e.g., interests, friends, posts). Each profile is a JSON document with nested structures. Using DocumentDB:
+- Schema flexibility: Add new fields (e.g., "recent_activity") without downtime.
+- Complex queries: Use MongoDB syntax to find users in a specific city with interests in "travel."
+- Scalability: Auto-scaling storage and read replicas handle spikes during viral posts.
+
+
+Exam Tips: ⭐
+
+- MongoDB compatibility: Supports MongoDB 3.6/4.0 APIs—ideal for migrating MongoDB apps to AWS.
+- Use cases: JSON documents, unstructured/semi-structured data, apps needing aggregation pipelines.
+- Storage: Auto-scaling (starts at 10 GB, grows in 10 GB increments) with 6 replicas across AZs.
+- High availability: Multi-AZ with up to 15 read replicas; failover <30 sec.
+
+
+Common Mistakes: ⚠️
+
+- Confusing with DynamoDB: DynamoDB is key-value/document (limited query flexibility), DocumentDB excels at complex queries.
+- Assuming full MongoDB parity: Some MongoDB features (e.g., transactions, $lookup) may have limitations.
+- Ignoring compatibility versions: If the question mentions MongoDB 5.0+, DocumentDB is not the answer.
+- ⭐DocumentDB doesn't have a Serverless option and it doesn't have a global database feature.⭐
 
 </details>
+
+<details>
+<summary>🎯Q. Amazon Neptune </summary>
+
+- Amazon Neptune is a fully managed graph database service optimized for storing and querying highly connected data using RDF (Resource Description Framework) and Property Graph models. It supports query languages like Gremlin (for property graphs) and SPARQL (for RDF), enabling efficient traversal of complex relationships.
+
+Exam Tips: ⭐
+
+- Use Neptune for relationship-heavy data: Fraud detection, social networks, recommendation engines, knowledge graphs.
+- Query languages: Gremlin (property graph) vs. SPARQL (RDF) – know which to use based on the data model.
+- `High availability`: Neptune replicates data to 3 AZs and supports up to 15 read replicas.
+- Not a replacement: Avoid using it for simple key-value (DynamoDB) or tabular data (RDS).
+- Security: IAM integration, encryption at rest (AWS KMS), and VPC isolation are key features.
+
+
+Common Mistakes: ⚠️
+
+- Confusing Neptune with other databases: Using Neptune for non-graph use cases (e.g., transactional apps needing SQL).
+- Overlooking scaling: ⭐Neptune scales vertically (instance size) and horizontally (read replicas), but not automatically like DynamoDB.⭐
+- Forgetting backups: Automated backups are enabled by default (retention: 1-35 days), but cross-region backups require manual setup.
+
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon Keyspaces (for apache cassandra) </summary>
+
+- Amazon Keyspaces (for Apache Cassandra) is a managed, serverless, wide-column NoSQL database service compatible with Apache Cassandra. It handles scaling, replication, and maintenance, ideal for apps needing high scalability and Cassandra-like data models (e.g., time-series, IoT).
+
+Simple real-world example: ⭐
+- A logistics company tracks real-time GPS data from 50,000 delivery trucks. Each truck sends location updates every 10 seconds. Using Amazon Keyspaces:
+- Data is stored in a wide-column format (e.g., vehicle_id as partition key, timestamp as clustering column).
+- Serverless scaling handles fluctuating write/read traffic.
+- Cassandra Query Language (CQL) is used for queries like "Get last 10 locations for truck-X."
+- No infrastructure management: AWS handles backups, patches, and replication across 3 AZs.
+
+
+Exam Tips: ⭐
+
+- Serverless & Managed: No provisioning; pay-per-use pricing.
+- Cassandra Compatibility: Uses CQL (not SQL) and Cassandra drivers.
+- Use Cases: Time-series, high-scale apps (IoT, clickstreams).
+- VS DocumentDB:
+     - Keyspaces: Wide-column (rows with dynamic columns).
+     - DocumentDB: Document-based (JSON-like, hierarchical data).
+
+
+Common Mistakes: ⚠️
+
+- Confusing with DynamoDB/DocumentDB: ⭐Keyspaces ≠ key-value (DynamoDB) or document DB (DocumentDB).⭐
+- Ignoring CQL: Writing SQL queries (e.g., SELECT * FROM table WHERE non-key column=...) will fail.
+- Overlooking Partition Keys: Poorly designed partition keys lead to throttling (e.g., hot partitions).
+</details>
+
+<details>
+<summary>🎯Q. Amazon timestream </summary>
+
+- Amazon Timestream is a serverless time-series database optimized for fast ingestion, efficient storage, and analytical queries on time-stamped data (e.g., IoT, DevOps metrics). It automates retention, tiered storage (hot/warm layers), and scales seamlessly.
+
+Simple real-world example: ⭐
+- A smart factory uses Timestream to analyze sensor data (temperature, vibration) from 10,000 machines. Data is ingested every second, stored cost-effectively, and queried to detect anomalies (e.g., "Which machines exceeded 100°C in the last hour?"). Older data is auto-archived to warm storage, reducing costs.
+
+
+Exam Tips: ⭐
+
+- Use Timestream for time-series data (metrics, IoT) requiring time-based aggregations (e.g., AVG() over 5-minute intervals).
+- Differentiate from Keyspaces: Keyspaces is a wide-column DB (Apache Cassandra-compatible) for general-purpose apps; Timestream is purpose-built for time-series.
+- Serverless & auto-scaling: No capacity planning; handles petabytes with tiered storage (hot for recent, warm for historical).
+- SQL-like querying: Supports time-series functions (e.g., time_binned_avg, smooth).
+
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon Athena important points (its OLAP) </summary>
+
+- Amazon Athena is a serverless, interactive query service that uses standard SQL to analyze data directly in Amazon S3. It supports various formats (CSV, JSON, Parquet, etc.) and is ideal for ad-hoc querying, log analysis, and cost-effective big data analytics.
+
+
+Simple end-to-end real-world example: ⭐
+A retail company stores daily sales logs (CSV files) in Amazon S3. Using Athena:
+ - Define a table schema in AWS Glue Data Catalog.
+ - Run SQL queries directly on S3 data (e.g., SELECT product_id, SUM(sales) FROM sales_data GROUP BY product_id).
+ - Visualize results in Amazon QuickSight for sales trends.
+ - No data movement or infrastructure setup required!
+
+⭐Exam Tips: ⭐
+
+- Serverless: No servers to manage; pay per query (based on data scanned).
+- S3 Integration: Directly queries data in S3 (supports structured/semi-structured data).
+- Cost Optimization: Use columnar formats (e.g., Parquet) and partition data to reduce scanned data.
+- AWS Glue: Often paired with Athena for schema/ETL management.
+- Key Differentiator: Athena vs. Amazon Keyspaces (managed Cassandra DB for NoSQL) vs. RDS/Aurora (OLTP databases).
+
+Common Mistakes: ⚠️
+
+- Assuming Athena is for ⭐transactional workloads (OLTP)⭐ – it’s designed for OLAP (analytics).
+- Not compressing/partitioning data, leading to high query costs.
+- Confusing Athena with Redshift (Athena = ad-hoc S3 queries; Redshift = data warehouse for complex ETL/analytics).
+- Forgetting that Athena uses schema-on-read (data format/partitioning matters!).
+
+</details>
+
+<details>
+<summary>🎯Q. what is RedShift ? why its used ? </summary>
+
+- Amazon Redshift is a fully-managed, petabyte-scale data warehousing service optimized for analytics workloads. (OLAP)
+- It uses columnar storage, Massively Parallel Processing (MPP), and advanced compression to deliver fast query performance on large datasets. It integrates with BI tools (e.g., Tableau) and supports SQL for complex analytics.
+
+
+Simple real-world example: ⭐
+An e-commerce company stores sales transactions in Amazon RDS (OLTP) and customer logs in S3. They use Redshift to:
+
+- Ingest data from RDS (via CDC) and S3 (via COPY commands).
+- Transform/aggregate data (e.g., daily sales per region).
+- Analyze trends using Amazon QuickSight dashboards for business decisions.
+
+Exam Tips: ⭐
+
+- Redshift vs. RDS: Redshift is for OLAP (analytics), RDS for OLTP (transactions).
+- Columnar storage improves performance for aggregation queries (e.g., SUM, COUNT).
+- Compression reduces storage costs and speeds up queries (automatically applied).
+
+
+Common Mistakes: ⚠️
+
+- Using Redshift for OLTP workloads (instead of RDS/Aurora).
+- Assuming Redshift Serverless is always cheaper (cost depends on usage patterns; compare with provisioned clusters).
+
+</details>
+
+
+<details>
+<summary>🎯Q. Opensearch notes </summary>
+
+- Amazon OpenSearch Service (successor to Amazon Elasticsearch) is a managed service for real-time search, analytics, and visualization of structured/unstructured data. It supports use cases like log analytics, full-text search, and operational monitoring.
+- Built on OpenSearch (forked from Elasticsearch), it integrates with AWS services (e.g., Kinesis, CloudWatch) and offers scalability, security (IAM/VPC), and Kibana for dashboards.
+
+
+Common Mistakes: ⚠️
+
+- Using OpenSearch for transactional workloads (it’s optimized for search/analytics, not ACID compliance).
+- Overlooking index management (poorly designed indices lead to high costs/performance issues).
+- Confusing UltraWarm (for read-only, historical data) with hot storage (for real-time data).
+
+</details>
+
+
+<details>
+<summary>🎯Q. Amazon QuickSight </summary>
+
+- Amazon QuickSight is AWS’s fully managed, cloud-native business intelligence (BI) service for creating interactive dashboards, visualizations, and ad-hoc analyses. 
+- It is serverless, scales automatically, and `uses a pay-per-session pricing model` (charges apply only when users access dashboards or reports).
+- It integrates with AWS data sources (S3, RDS, Athena, Redshift) and third-party tools, using SPICE (Super-fast, Parallel, In-memory Calculation Engine) for fast query performance.
+
+
+Simple real-world example for end-to-end visualization: ⭐
+A retail company stores sales data in Amazon S3. They use QuickSight to:
+
+- Connect to S3 and create a dataset.
+- Prepare data (clean, transform) using QuickSight’s UI.
+- Build dashboards with charts (e.g., sales by region, YoY growth).
+- Share dashboards with regional managers via email/URL.
+- Managers access dashboards on any device, paying only for their active sessions.
+
+</details>
+
+<details>
+
+<summary>🎯Q. Amazon glue </summary>
+
+- Amazon Glue is a `serverless ETL` (Extract, Transform, Load) service that automates data preparation and integration. 
+
+- Key components:
+  - `Data Catalog`: Metadata repository for all data assets.
+  - `Crawlers`: Automatically discover and catalog data schemas. (e.g., from S3, RDS).
+  - `Jobs`: PySpark/Spark code for ETL workflows.
+  - `Glue Studio`: Visual ETL interface.
+  - `Glue ETL`: Generates and runs data transformation code.
+
+
+Real-World Example: ⭐
+A company aggregates CSV logs from IoT devices in S3. Use case:
+
+- Glue Crawler scans S3 paths, infers schema, and populates the Data Catalog with metadata.
+- Glue Job transforms data (e.g., cleans duplicates, converts to Parquet) and writes to a processed S3 bucket.
+- QuickSight visualizes results.
+
+
+Exam Tips: ⭐
+
+- Glue vs. Lambda:
+    - Use Glue for heavy/long ETL jobs (Spark-based, serverless, scales automatically).
+    - Use Lambda for quick, event-driven tasks (e.g., trigger on S3 upload, 15-min max runtime).
+- Glue Data Catalog acts as a central schema store for Athena, Redshift Spectrum, and EMR.
+- Glue is serverless; no infrastructure to manage (vs. EC2/EMR).
+- Glue Elastic Views: Combines data across sources (e.g., merge RDS + DynamoDB) via SQL.
+
+Common Mistakes: ⚠️
+
+- Thinking Lambda replaces Glue for ETL (Lambda lacks Spark’s scalability for large datasets).
+- Forgetting to run/configure Crawlers before querying data with Athena (no schema = errors).
+- Assuming Glue Jobs are real-time (they’re batch/ETL-focused; use Kinesis for real-time).
+- Overlooking job bookmarks (prevents reprocessing old data in incremental workflows). 
+  - job bookmarks helps to ensure that incremental data processing is handled efficiently by remembering which data has already been processed. This is particularly useful when dealing with large datasets or streaming data, as it avoids reprocessing data that has already been processed in previous job runs.
+
+</details>
+
+TODO - other mini chapters here and maching learnig chapter.
+
+
+⭐ One Liner Notes⭐
+- Amazon DynamoDB can not be used to store big objects. ⭐The maximum item size in DynamoDB is 400KB.⭐
+- DocumentDB is fully managed MongoDB compatible.
 
 
 <br>
