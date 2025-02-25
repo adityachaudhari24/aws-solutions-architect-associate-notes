@@ -32,26 +32,49 @@ Study material
 TODO
 
 ## Identity Access Management (IAM)
+
+
 <details>
-<summary> Q: what is Users, Groups, Roles, and Policies? IMP - remember role is HAT/CAP which can be put on group or users</summary>
+<summary>🎯Q. AWS Organization </summary>
 
-Users: Assigned credentials (username/password, access keys). <br>
-Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. <br>
-Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. <Br>
-Policies: JSON documents that define permissions. They are not standalone identities – they must be attached to a User, Group, or Role. <br>
+- AWS Organizations is a service that helps you centrally manage and govern multiple AWS accounts.
+- It allows you to create and manage accounts, apply policies (like Service Control Policies - SCPs), and consolidate billing. It’s ideal for enterprises needing to enforce security, compliance, and cost management across multiple accounts.
 
-IAM roles provide temporary credentials (access key, secret key, and token) when assumed, replacing long-term access keys. <br>
+A company, XYZ Corp, has three departments: HR, Finance, and IT. They create an AWS Organization with a Management Account and three Member Accounts (one for each department).
+
+- They use Service Control Policies (SCPs) to restrict access to certain services (e.g., Finance cannot use EC2).
+- They enable Consolidated Billing to track costs across all accounts.
+- They use AWS IAM Identity Center (formerly AWS SSO) to provide single sign-on access to all accounts.
+
+Common Mistakes: ⚠️
+
+- `Misunderstanding SCPs`: SCPs don’t grant permissions; ⭐they only restrict them⭐. Permissions are still managed by IAM policies.
+- Overlooking the Management Account: It has full access to all member accounts and can’t be restricted by SCPs.
+- Assuming SCPs affect all services: Some AWS services (e.g., AWS Support) are exempt from SCPs.
+
+</details>
+
+<details>
+<summary> 🎯Q: what is Users, Groups, Roles, and Policies? IMP - remember role is HAT/CAP which can be put on group or users</summary>
+
+- Users: Assigned credentials (username/password, access keys). <br>
+- Groups: Users are added to groups (e.g., "Developers"), and policies are attached to groups. 
+- Roles: Assigned to AWS services (like EC2) or users temporarily. Policies are attached to roles. 
+- Policies: JSON documents that define permissions.
+
+- IAM roles provide temporary credentials (access key, secret key, and token) when assumed, replacing long-term access keys. <br>
 <span class="highlighted-text"> Role is like hat, which is being wear by user or service to perform certain tasks.</span> <br>
 These credentials are short-lived and used by users, apps, or AWS services to perform tasks securely. <br>
 Example reference link : https://www.youtube.com/watch?v=miij_0HkBws <br>
 </details>
 
 <details>
-<summary>Q: What are policies and what are the types of policies ?</summary>
-Policies are JSON documents defining permissions for users (IAM) or resources (S3, Lambda).
+<summary>🎯Q: What are policies and what are the types of policies ?</summary>
 
-simple policy example below : <br>
-(Allows listing objects in example_bucket only if the prefix is "home/")
+- Policies are JSON documents that define permissions in AWS. They specify what actions are allowed/denied on which resources under what conditions.
+
+- simple policy example below - 
+- (Allows listing objects in example_bucket only if the prefix is "home/")
 
 ```json
 {
@@ -81,126 +104,87 @@ Policies have below elements :
     - Resource - List of resources to which the action is applied to
     - Condition - Condition when the policy is in effect **(optional)**
 
-#### There are 6 types of policies all of these polices are evaluated before a request is either allowed or denied.
+- Different types of policies in AWS
+    - `Identity-based policies`: Attached to users, groups, or roles.
+    - `Resource-based policies`: Attached to resources (e.g., S3 bucket policies).
+    - `Organization policies`: Applied at the AWS Organization level.
+    - `ACLs`: Legacy rules for resource access, primarily for S3 and DynamoDB.
+    - `Session policies`: Temporary permissions applied during role sessions (e.g., STS assume-role).
 
-#### 6 Policy Types
-**Identity-Based Policies**  
-Attached to users/groups/roles.  
-*Example:* AmazonS3FullAccess policy lets a user (e.g., "Alice") manage S3.
+### AWS IAM Policy Evaluation Logic
 
-**Resource-Based Policies**  
-Attached to resources (S3, Lambda).  
-*Example:* S3 bucket policy allowing another account to read objects.
+- IAM Policy Evaluation Logic:
+  - Default: Deny (requests are denied unless explicitly allowed).
+  - Explicit DENY overrides any ALLOW.
+  - For cross-account access, both identity-based (if applicable) and resource-based policies must allow the action.
+  - If a user is part of multiple groups, the most permissive policy applies.
+  - Policies are evaluated in the following order: 
+    - Identity-based policies
+    - Resource-based policies
+    - Organizations SCPs
+    - Session policies
+    - ACLs (legacy, not recommended)
+  - If a policy doesn't explicitly allow or deny an action, the default is to deny.
 
-**Permissions Boundaries**  
-Set max permissions for a user/role.  
-*Example:* Boundary allowing only s3:GetObject, even if other policies grant more.
+Exam Tips: ⭐
 
-**Session Policies**  
-Temporary permissions for role sessions.  
-*Example:* Assume a role with STS, limiting actions to s3:ListBucket for 1 hour.
+- Explicit DENY always wins – even if other policies ALLOW.
+- Resource-based policies (e.g., S3 bucket policies) require the principal to be explicitly specified.
 
-**Service Control Policies (SCPs)**  
-AWS Organizations guardrails.  
-*Example:* Block s3:DeleteBucket across all accounts in an OU.
+Common Mistakes: ⚠️
 
-**ACLs**  
-Legacy resource access rules.  
-*Example:* S3 object ACL set to public-read for open access.
+- If there is explicit deny in any policy then it will be denied irrespective of other policies.
+- Forgetting that S3 bucket access often requires both IAM policies (identity) and bucket policies (resource) to align.
 
-Below is the flow in which these policies are evaluated before a request is either allowed or denied.
-![img.png](images/6iampolicytypes.png). <br>
 </details>
 
 <details>
-<summary>Q: Two types of authorization model RBAC and ABAC what they are and difference between them?</summary>
-IMP - Recognize when to use ABAC (tags, scaling) vs. RBAC (static roles). Always check for aws:ResourceTag or aws:PrincipalTag in policies.
-Both are IAM strategies to manage permissions, but they work differently. Let’s break them down with simple examples and exam-focused insights.
+<summary>🎯 Q: Two types of authorization model RBAC and ABAC what they are and difference between them?</summary>
 
-### 1. RBAC (Role-Based Access Control)
+- RBAC (Role-Based Access Control) assigns permissions based on user roles, while ABAC (Attribute-Based Access Control) grants access based on attributes (e.g., user, resource, environment) and policies.
 
-**Definition:** Assign permissions based on predefined roles (e.g., "Admin," "Developer").
+Simple end-to-end real-world example for better visualization: ⭐
 
-**How It Works:**
+- RBAC: In a company, a "Manager" role has access to approve budgets, while an "Employee" role can only view them.
+- ABAC: A policy allows access to a file only if the user’s department matches the file’s department tag and the access time is during business hours.
 
-- Create IAM roles with policies that specify exact AWS resources (e.g., S3 buckets, EC2 instances).
-- Users/groups are assigned these roles.
 
-**Example:**
+Exam Tips: ⭐
 
-**Scenario:** A company has two S3 buckets: `projectx-data` and `projecty-data`.
+- RBAC is simpler and ideal for static environments with well-defined roles.
+- ABAC is more flexible and scalable, suitable for dynamic environments with complex access requirements.
+- ⭐ABAC uses attributes like user ID, resource tags, and time of day to make access decisions.⭐
+- Understand how AWS IAM supports both models: RBAC through policies attached to roles and ABAC through conditions in policies.
 
-**Role:** `ProjectX-Developer`
+Common Mistakes: ⚠️
 
-**Policy:** Allows read/write access only to `projectx-data`.
+- Confusing RBAC with ABAC: RBAC is role-centric, while ABAC is attribute-centric.
+- Overlooking the scalability of ABAC for large, dynamic systems.
+- Ignoring the importance of defining clear attributes and policies in ABAC.
+</details>
 
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["s3:*"],
-            "Resource": [
-                "arn:aws:s3:::projectx-data",
-                "arn:aws:s3:::projectx-data/*"
-            ]
-        }
-    ]
-}
-```
+<details><summary>🎯Q: AWS Control Tower?</summary>
 
-Exam Tip:
-RBAC is ideal for static environments where resources don’t change often.
-If a new bucket projectz-data is added, you must update the policy to include it.
+- AWS Control Tower is a service that simplifies setting up and governing a secure, multi-account AWS environment. It automates best practices and provides guardrails to enforce compliance.
 
-### 2. ABAC (Attribute-Based Access Control)
+Simple end-to-end real-world example for better visualization: ⭐
+- A company wants to manage multiple AWS accounts for different departments (e.g., HR, Finance, IT). AWS Control Tower sets up a landing zone, creates accounts, and applies guardrails to ensure compliance (e.g., preventing public S3 bucket access).
 
-**Definition:** Permissions are based on tags (attributes) attached to users/resources.
+Exam Tips: ⭐
 
-**How It Works:**
+- AWS Control Tower is ideal for managing multi-account AWS environments.
+- Guardrails are policies that enforce compliance (e.g., preventive vs. detective guardrails).
+- It integrates with AWS Organizations for account management and governance.
+- Understand the difference between mandatory and elective guardrails.
 
-- Define policies that use conditions like `aws:ResourceTag` or `aws:PrincipalTag`.
-- Access is granted if tags match.
+Common Mistakes: ⚠️
 
-**Example:**
-
-**Scenario:** Developers should only access EC2 instances tagged with their team’s name (e.g., Team=Frontend).
-
-- **User Tag:** `Team=Frontend` (assigned to the IAM user).
-- **Resource Tag:** `Team=Frontend` (assigned to EC2 instances).
-
-**ABAC Policy:**
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "ec2:*",
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "aws:ResourceTag/Team": "${aws:PrincipalTag/Team}"
-                }
-            }
-        }
-    ]
-}
-```
-**Exam Tip:**  
-ABAC is scalable for dynamic environments (e.g., auto-scaling EC2 instances). No policy updates needed when new resources are created—just apply the correct tags.
-
-**Key Differences for the Exam:**
-
-| **RBAC** | **ABAC** |
-|----------|----------|
-| Permissions tied to roles with explicit resource ARNs. | Permissions tied to tags on users/resources. |
-| Best for fixed, predictable resources. | Best for dynamic, rapidly changing resources. |
-| Requires policy updates for new resources. | Automatically applies to new tagged resources. |
+- Assuming AWS Control Tower is only for small-scale environments (it’s designed for multi-account setups).
+- Overlooking the importance of guardrails in enforcing compliance.
+- Confusing AWS Control Tower with AWS Organizations ⭐(Control Tower builds on Organizations).⭐
 
 </details>
+
 
 ## EC2
 
@@ -2339,6 +2323,9 @@ Exam Tips: ⭐
 
 Q. how AWS Auto Scaling (for DynamoDB, Aurora, S3) happens how its differnt then EC2 autoscaling ? do we have special optinos for AWS autoscaling ?
 Q. Aurora Global Database, DynamoDB Global Tables works internally ? how globalness is achieved then other normal offerings for RDBMS and NoSql alternatives ?
+Q. EventBridge vs SQS ?
+Q. Difference between AWS Config vs CLoudTrail vs CloudWatch .
+
 
 🚀 - Questions to answer later <br>
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br> what does it mean by burst workload?
