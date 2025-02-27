@@ -25,7 +25,8 @@ Study material
 15. <a href="#Step Functions">Step Functions</a>
 16. <a href="#Cognito">cognito</a>
 17. <a href="#Databases-in-aws-and-analytics">Databases In AWS and analytics</a>
-18. <a href="#data-lake">Data Lake</a>
+18. <a href="#machine-learning">Machine Learning</a>
+19. <a href="#AWS-Security">AWS Security</a>
 
 
 ## Introduction
@@ -185,6 +186,20 @@ Common Mistakes: ⚠️
 
 </details>
 
+<details>
+<summary>🎯Q: what is security token service ? </summary>
+
+- AWS Security Token Service (STS) generates temporary, scoped credentials (lasting minutes to hours) to delegate access to AWS resources without exposing long-term keys.
+
+Common Mistakes
+
+❌ Assuming STS works only for human users (used by AWS services like Lambda).
+❌ Overlooking the need for trust policies in IAM roles when using AssumeRole.
+❌ Using STS for static credentials (e.g., CI/CD pipelines → use IAM roles instead).
+- `Credentials expire` (default: 1 hour; max 12 hours for IAM roles).
+- Always use roles instead of long-term keys for dynamic workloads (e.g., Lambda, EC2).
+
+</details>
 
 ## EC2
 
@@ -2165,8 +2180,188 @@ Exam Tips: ⭐
 - DocumentDB is fully managed MongoDB compatible.
 
 
+## AWS Security
+
+<details>
+<summary>🎯Q. What is Encryption in transit means? </summary>
+
+- Encryption in transit refers to securing data as it moves between systems (e.g., client-server, server-server) using encryption protocols like TLS/SSL.
+- It ensures that data is not readable by unauthorized parties during transmission.
+
+Simple end-to-end real world example: ⭐
+- A user sends a password over the internet to a website.
+- The website uses TLS to encrypt the password before sending it to the server.
+- The server decrypts the password and uses it to authenticate the user.
+
+Exam Tips: ⭐
+- Encryption in transit is about securing data during transmission.
+- It's different from encryption at rest, which secures data while it's stored.
+</details>
 
 
+<details>
+<summary>🎯Q. KMS Overview </summary>
+
+- AWS Key Management Service (KMS) is a fully managed service that allows you to create and control encryption keys used to encrypt your data.
+- It integrates with other AWS services to protect data at rest and in transit. - KMS supports encryption, decryption, and key rotation.
+- It provides a secure and durable key storage, and you `can audit key usage with CloudTrail`.
+- KMS is integrated with AWS services like S3, EBS, RDS, Redshift, and more.- KMS supports Bring Your Own Key (BYOK) for customer-managed keys.
+
+- Types of keys:
+    - symmetric keys: used for encryption and decryption
+    - asymmetric keys: used for digital signatures and key exchange
+    - Symmetric key encryption uses the same key for both encryption and decryption.
+    - Asymmetric key encryption uses a pair of keys: a public key for encryption and a private key for decryption.
+
+Exam Tips: ⭐
+
+- KMS supports two types of keys: Symmetric (AES-256) and Asymmetric (RSA/ECC). Symmetric keys are used for encryption/decryption, while asymmetric keys are used for signing/verification or encryption/decryption.
+  - `KMS keys are region-specific and do not replicate across regions`. If you need cross-region encryption, you must create keys in each region.
+- KMS integrates with AWS services like S3, EBS, RDS, and Lambda for seamless encryption.
+- Key policies control access to KMS keys. `Always ensure the root user has full access to avoid lockout`.
+- Use Automatic Key Rotation for symmetric keys to enhance security without manual intervention.
+- handling multi region specific keys : 
+  - `Cross-Region Replication`: Manually copy encrypted data to another region. (TODO understand more)
+  - `Multi-Region Keys`: Create a multi-region key in each region and use them for encryption/decryption.
+  
+</details>
+
+<details>
+<summary>🎯Q. AWS secret manager </summary>
+
+- AWS Secrets Manager is a service that helps you securely store, manage, and retrieve sensitive information such as database credentials, API keys, and passwords. 
+- It also supports automatic rotation of secrets, reducing the risk of compromised credentials. 
+- In contrast, AWS Systems Manager Parameter Store is a service for storing configuration data and secrets, but it lacks built-in secret rotation and has fewer integrations with AWS services.
+
+
+Simple end-to-end real-world example for better visualization: ⭐
+- Imagine you’re running a web application that connects to a MySQL database. Instead of hardcoding the database credentials in your application code, you store them in AWS Secrets Manager. The service encrypts the credentials and allows your application to retrieve them securely via API calls. Additionally, Secrets Manager automatically rotates the database password every 30 days, ensuring your application always uses updated credentials without manual intervention. For non-sensitive configuration data like environment variables, you can use Parameter Store, which is cost-effective but doesn’t support rotation
+
+Exam Tips: ⭐
+
+- Use Secrets Manager for sensitive data like database credentials, especially when automatic rotation is needed
+- Use Parameter Store for non-sensitive configuration data or when cost efficiency is a priority
+- Remember that Secrets Manager integrates directly with AWS services like RDS, while Parameter Store does not
+- `Know the pricing difference`: Secrets Manager charges per secret, while Parameter Store is free for standard parameters
+
+Common Mistakes: ⚠️
+
+- Mistake 1: Using Parameter Store for sensitive data that requires automatic rotation, which it doesn’t support  .
+- Mistake 2: Overpaying by using Secrets Manager for non-sensitive data that could be stored in Parameter Store.
+
+</details>
+
+
+<details>
+<summary>🎯Q. AWS Certificate Manager </summary>
+
+- AWS Certificate Manager (ACM) simplifies provisioning, managing, and deploying SSL/TLS certificates to secure applications with HTTPS.
+- 
+
+Exam Tips: ⭐
+
+- ACM certificates ⭐must be in the same AWS region⭐ as the resource (e.g., ALB, CloudFront).
+- ⭐`CloudFront` requires certificates in `us-east-1`⭐, even if your infrastructure is elsewhere.⭐
+- ACM provides free public certificates; private certificates cost extra.
+- Supports wildcard certificates (e.g., *.example.com).
+- Automatic renewal for ACM-managed certificates.
+
+
+Common Mistakes: ⚠️
+
+- Forgetting regional restrictions (e.g., using an ACM certificate from us-west-2 for a CloudFront distribution).
+- Attempting to use ACM for EC2 instances directly (requires manual certificate installation).
+
+</details>
+
+
+<details>
+<summary>🎯Q. AWS WAF (Web application firewall) </summary>
+</details>
+
+- AWS WAF (Web Application Firewall) is a managed service that protects web applications from common exploits by filtering and monitoring HTTP/HTTPS traffic using customizable rules. 
+- It integrates with services like CloudFront, Application Load Balancer (ALB), and API Gateway.
+
+
+Exam Tips: ⭐
+- WAF is a ⭐ stateless firewall⭐ , so it doesn’t maintain session state.
+- Use WAF to protect against common web attacks, not for DDoS protection.
+- WAF supports both managed rules and custom rules, allowing you to fine-tune protection.
+- ⭐ OWASP Top 10:⭐  Focus on rules mitigating SQLi, XSS, and HTTP floods.
+- Cost: Costs accrue per rule and per request processed—optimize rule sets to avoid unnecessary expenses.
+
+
+Common Mistakes: ⚠️
+
+- Assuming AWS WAF alone provides full security (combine with Shield for DDoS protection, Security Groups, etc.).
+- Misconfiguring rule priorities (e.g., allowing a broad rule to override a specific blocking rule).
+- Overlooking regional vs. global deployment (e.g., using a regional WAF for a global CloudFront distribution).
+
+Exam Questions (Critical Types):
+
+- Primary functions of AWS WAF: Filter web traffic, block exploits (SQLi/XSS), and enable custom rule-based protection.
+- Positive vs. Negative Security Models:
+  - Positive: Allows only pre-approved traffic (whitelisting).
+  - Negative: Blocks known malicious traffic (blacklisting).
+- Integration with AWS services: Works with CloudFront/ALB for traffic inspection, logs to CloudWatch/S3, and pairs with AWS Shield for DDoS mitigation.
+
+<details>
+<summary>🎯Q. AWS Shield important notes </summary>
+
+- AWS Shield is a managed Distributed Denial of Service (DDoS) protection service that safeguards applications running on AWS.
+
+Simple End-to-End Real-World Example:
+
+- An online banking app uses AWS Shield Advanced:
+- During a volumetric DDoS attack targeting its public-facing API Gateway.
+- Shield Advanced automatically detects and mitigates traffic spikes.
+- Provides real-time attack visibility via AWS WAF dashboards.
+- Ensures continuous uptime for customers during the attack.
+
+Exam Tips:
+
+- Standard vs. Advanced:
+    - Standard: Free, always enabled for AWS resources (e.g., CloudFront, ELB).
+    - Advanced: Paid, includes enhanced DDoS mitigation, 24/7 SOC support, and financial protection against scaling costs during attacks.
+- Use Cases: Protect mission-critical apps (e.g., gaming, financial services).
+- Integration: Works with CloudFront, Route 53, and Elastic IPs for comprehensive protection.
+
+
+Common Mistakes: ⚠️
+
+- Assuming Shield Standard provides full DDoS protection (Advanced is needed for complex attacks).
+- Overlooking Shield Advanced’s SLA-backed 99.99% availability guarantee.
+</details>
+
+
+<details>
+<summary>🎯Q.  AWS GuardDuty, INspector, Macie </summary>
+
+- `AWS GuardDuty`: A threat detection service monitoring AWS accounts, VPCs, and S3 logs for malicious activity (e.g., unauthorized API calls, compromised instances).
+- `Amazon Inspector`: Automated `vulnerability assessment` for EC2 instances, containers, and serverless functions, focusing on network exposure and software vulnerabilities.
+- `AWS Macie`: ML-powered service to discover/classify `sensitive data` (e.g., PII, credit card numbers) in S3 buckets and enforce data protection policies.
+
+
+Exam Tips Key Differentiators: ⭐
+
+- GuardDuty → Behavioral analysis (e.g., crypto-mining, credential compromise).
+- Inspector → Vulnerability scoring (CVSS-based) and compliance checks (CIS benchmarks).
+- Macie → Data classification (supports custom identifiers) and GDPR/HIPAA compliance.
+- Integration: All three integrate with AWS Security Hub for centralized alerts.
+- `Cost Model`: GuardDuty charges `per GB` of log data analyzed; Macie `per GB` of data scanned.
+
+Common Mistakes
+
+❌ Assuming GuardDuty requires manual log analysis (it’s fully managed).
+❌ Overlooking Inspector’s need for an agent on EC2 instances.
+❌ Assuming Macie works only with S3 (it also supports Redshift and Aurora).
+
+</details>
+
+One liners ⭐
+- parameter store has versioning capability
+- GuardDuty does not scan CloudWatch logs - because it is designed to analyze specific AWS data sources directly,If you need to analyze CloudWatch Logs for potential security threats, you can use other AWS services like Amazon Detective, AWS Security Hub, or integrate with third-party tools for log analysis.
+- AWS Firewall Manager is a security management service that allows you to centrally configure and manage firewall rules across your accounts and applications in AWS Organizations.
 
 <br>
 <br>
@@ -2318,6 +2513,14 @@ Exam Tips: ⭐
 <details>
 <summary>🎯Q. TODO : Why Aurora DB is fault-tolerant and RDS is not ? also why Aurora is more scalable then RDS ?</summary>
 </details>
+
+
+
+
+
+
+
+
 
 
 
