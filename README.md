@@ -2495,7 +2495,7 @@ Common Mistakes: ⚠️
 <summary>🎯Q. Site to Site VPN notes </summary>
 
 - `Site-to-Site VPN` establishes an encrypted IPSec connection between an on-premises network and AWS VPC, using a Virtual Private Gateway (VGW) as the AWS-side endpoint.
-- It uses a VGW and a Customer Gateway (CGW) on-premises, with a VPN tunnel for secure communication.
+- It uses a VGW(Virtual Private Gateway) and a Customer Gateway (CGW) on-premises, with a VPN tunnel for secure communication.
 - `Direct Connect` is about dedicated private connections with high bandwidth, while `Site-to-Site VPN` is about quick, encrypted connections over the internet.
 
 Direct Connect AND SIte-to-Site VPN ⭐
@@ -2716,3 +2716,69 @@ validate
 - scalability means to serve increases or decreased load efficiently by either increaing or decreasing resources or compute power
 - availability means to serve the request ⭐without any downtime⭐ which may cause due to hardware failure, software failure, network failure etc.
 
+⭐⭐⭐⭐⭐⭐ Miscellaneous questions and answers  ⭐⭐⭐⭐⭐⭐
+<details>
+<summary>🎯Q. selecting correct EBS volume - notes </summary>
+
+# EBS Volume Types - Quick Reference 🎯
+## io1/io2 (Provisioned IOPS SSD) ⭐
+- **Key Point**: Choose for high-performance, mission-critical workloads
+- **Performance**:
+  - Up to 64,000 IOPS
+  - 160 MB/s throughput
+- **Best for**:
+  - Databases (especially production)
+  - OLTP workloads 
+  - Latency-sensitive applications
+- ⚠️ Remember: If you need > 16,000 IOPS, always choose io1/io2
+## io2 Block Express 🚀
+- **Key Point**: Highest performer in EBS family
+- **Performance**: Up to 256,000 IOPS
+- Think of it as "io2 on steroids"
+## gp2/gp3 (General Purpose SSD) 💡
+- **Key Point**: Default choice for most workloads
+- **gp3 features**:
+  - Baseline 3,000 IOPS (free)
+  - Can scale up to 16,000 IOPS
+- **Best for**:
+  - Cost-effective performance
+  - Development/test environments
+  - Virtual desktops
+## st1 (Throughput Optimized HDD) 📊
+- **Key Point**: For frequently accessed, sequential workloads
+- **Best for**:
+  - Big Data
+  - Data warehouses
+  - Log processing
+- Remember: Think "S" for Sequential and "Streaming"
+## sc1 (Cold HDD) ❄️
+- **Key Point**: Lowest cost per GB
+- **Best for**:
+  - Infrequently accessed data
+  - Archive storage
+  - Lowest cost requirement
+- Remember: Think "C" for Cold storage
+## Quick Decision Guide for Exam 🎯
+
+1. Need high IOPS (>16,000)?
+→ Choose io1/io2
+2. Need highest possible performance?
+→ Choose io2 Block Express
+3. Need cost-effective general purpose?
+→ Choose gp3
+4. Big sequential data, frequent access?
+→ Choose st1
+5. Lowest cost, infrequent access?
+→ Choose sc1
+## Common Exam Traps ⚠️
+- Don't use HDD (st1/sc1) for boot volumes
+- Don't use HDD for random access patterns  
+- Remember gp3 is newer and more cost-effective than gp2
+- For high-performance databases, always lean towards io1/io2
+</details>
+
+<details>
+<summary>🎯🔥Q. Template 2 </summary>
+</details>
+
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
