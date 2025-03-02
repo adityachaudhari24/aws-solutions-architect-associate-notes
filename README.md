@@ -28,6 +28,7 @@ Study material
 18. <a href="#machine-learning">Machine Learning</a>
 19. <a href="#AWS-Security">AWS Security</a>
 20. <a href="#VPC">VPC</a>
+21. <a href="#Disaster-Recovery-and-migrations">Disaster Recovery</a>
 
 
 ## Introduction
@@ -2492,15 +2493,19 @@ Common Mistakes: ⚠️
 
 
 <details>
-<summary>🎯Q. Site to Site VPN notes </summary>
+<summary>🎯Q. Site to Site VPN notes and its comparision with others connection when it comes to connecting AWS with on-premise </summary>
 
 - `Site-to-Site VPN` establishes an encrypted IPSec connection between an on-premises network and AWS VPC, using a Virtual Private Gateway (VGW) as the AWS-side endpoint.
 - It uses a VGW(Virtual Private Gateway) and a Customer Gateway (CGW) on-premises, with a VPN tunnel for secure communication.
-- `Direct Connect` is about dedicated private connections with high bandwidth, while `Site-to-Site VPN` is about quick, encrypted connections over the internet.
+- `Direct Connect` is about `dedicated private connections` with high bandwidth, while `Site-to-Site VPN` is about quick, encrypted connections over the internet.
+- AWS private connect is about dedicated private connections with high bandwidth (without internet), while site-to-site VPN is about quick, encrypted connections over the internet.
 
 Direct Connect AND SIte-to-Site VPN ⭐
 
 - This combination provides the highest availability for hybrid architecture, though at higher cost than either solution alone.
+
+- site-to-site VPN when connection is over internet
+- direct connect when connection is not over internet
 </details>
 
 
@@ -2536,7 +2541,89 @@ One liner notes ⭐
     - `Internet Gateway (IGW)` = Main building entrance to public street
     - `NAT Gateway` = One-way door that lets people inside make external calls but prevents external access
 - REMEMBER NAT Gateways are for outbound traffic from private subnets to the internet. (NOT INBOUND)
+- max CIDR size in AWS is /16.
+- A Dedicated Direct Connect connection supports ⭐1Gbps and 10Gbps.⭐
+- ⭐AWS VPN CloudHub⭐ allows you to securely communicate with multiple sites using AWS VPN. It operates on a simple hub-and-spoke model that you can use with or without a VPC.
 
+
+## Disaster Recovery and migrations
+
+<details>
+<summary>🎯Q. RPO and RTO what they are ? and what are different Disaster recovery strategies ? </summary>
+
+- RPO is how much data loss are you willing to tolerate in case of disaster? (e.g., "How much data can we afford to lose?").)
+- RTO is how quickly you can recover from a disaster? (e.g., "How fast must systems recover?").
+
+Simple Real-World Example: ⭐
+An e-commerce platform:
+
+- Backs up transactions every 1 hour → RPO = 1 hour.
+- Restores systems within 4 hours after outage → RTO = 4 hours.
+
+⭐⭐ Disaster Recovery Strategies: ⭐⭐
+
+- `Backup & Restore (High RTO/RPO, low cost)`: Manual restoration from backups (e.g., S3 → EC2).
+- `Pilot Light (Mid RTO/RPO)`: Core services (e.g., DB) run in standby; others scale on-demand.
+- `Warm Standby (Low RTO/RPO)`: Partial replica always running (e.g., Multi-AZ RDS).
+- `Multi-Site Active-Active (~0 RTO/RPO, high cost)`: Fully replicated across regions (e.g., Global DynamoDB).
+
+Exam Tips: ⭐
+
+- RPO focuses on data loss; RTO focuses on downtime.
+- AWS strategies sorted by speed: Backup → Pilot Light → Warm Standby → Multi-Site.
+- Cost ↑ as RTO/RPO ↓ (e.g., Multi-Site is expensive but fastest).
+- RPO depends on backup/replication frequency (e.g., hourly snapshots → 1hr RPO).
+
+Common Mistakes: ⚠️
+
+- Confusing RTO (time to recover) with RPO (data loss tolerance).
+- Assuming "Cold Standby" (no pre-provisioned resources) has lower RTO than Warm Standby.
+- Overlooking replication lag (e.g., RPO ≠ backup interval if replication is asynchronous).
+
+</details>
+
+
+<details>
+<summary>🎯Q. DMS - Database Migration Service  (DMS) notes </summary>
+
+- AWS DMS (Database Migration Service) is a managed service for migrating relational/S3 databases to AWS or between sources with minimal downtime. Supports homogeneous (e.g., MySQL to MySQL) and heterogeneous (e.g., Oracle to Aurora) migrations using Schema Conversion Tool (SCT).
+
+Exam Tips: ⭐
+
+- CDC (Change Data Capture) enables near-real-time replication during migration
+- Use SCT for schema/stored proc conversion in heterogeneous migrations
+- Supports cross-account/region/VPC migrations with proper networking
+- DMS avoids downtime by synchronizing changes during migration
+- Critical sources: RDS, S3, DynamoDB, MongoDB, on-prem DBs
+
+</details>
+
+<details>
+<summary>🎯Q. Transferring large amount of Data to AWS ? different options  </summary>
+
+- AWS provides multiple services for transferring large data: AWS Snow Family (physical devices), Direct Connect (dedicated network), S3 Transfer Acceleration (fast uploads), DataSync (automated migration), and Storage Gateway (hybrid storage). Choose based on data size, network bandwidth, and security needs.
+
+Real-World Example: ⭐
+
+- A media company with 2PB of video archives uses:
+  - Snowmobile (truck-sized storage) to transfer 1.5PB offline.
+  - Snowball Edge for 500TB of sensitive footage (encrypted, air-gapped transfer).
+  - DataSync to keep new files synced to S3 via Direct Connect.
+
+Exam Tips: ⭐
+
+- `Snowball vs. Snowmobile`: Use Snowball for 10TB–10PB, Snowmobile for 100PB+.
+- `Offline vs. Online`: Slow/unstable networks → Snow Family; fast networks → S3 Transfer Acceleration.
+- `Cost`: Snow Family avoids egress fees; Direct Connect reduces cloud data transfer costs.
+- `Encryption`: Snow devices use hardware encryption; DataSync uses TLS in transit.
+
+
+Common Mistakes: ⚠️
+
+- Choosing S3 Transfer Acceleration for 100TB+ data (use Snowball instead).
+- Ignoring bandwidth throttling when scheduling transfers (causes delays).
+- Forgetting DataSync’s auto-retry and compression features for recurring transfers.
+</details>
 
 <br>
 <br>
@@ -2751,6 +2838,7 @@ validate
   - Data warehouses
   - Log processing
 - Remember: Think "S" for Sequential and "Streaming"
+- General Purpose SSD (gp3) includes 3,000 IOPS at no additional cost independent of volume size.
 ## sc1 (Cold HDD) ❄️
 - **Key Point**: Lowest cost per GB
 - **Best for**:
@@ -2778,7 +2866,18 @@ validate
 </details>
 
 <details>
+<summary>🎯🔥Q. Lambda max execution time? and max memory? </summary>
+
+- Lambda function execution time is limited to 15 minutes. <br>
+- Lambda memory(RAM) limit is 10 GB. meaning you can allocate upto 10 GB of memory to your lambda function. <br>
+</details>
+
+<details>
 <summary>🎯🔥Q. Template 2 </summary>
+</details>
+
+<details>
+<summary>🎯Q. Template 1 </summary>
 </details>
 
 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
