@@ -32,7 +32,16 @@ Study material
 
 
 ## Introduction
-TODO
+
+- AWS solution architect associate exam focus on below 4 areas
+  - Designing and deploying scalable and secure cloud solutions
+  - Designing and deploying high availability and fault tolerant cloud solutions
+  - Designing and deploying cost effective cloud solutions
+  - Designing and deploying secure cloud solutions.
+
+Below are the topics mostly as per Stefan Marek's course on Udemy and additional notes I made using AWS skill builder content and using chatGPT.
+Hope it helps whoever is referring this notes along with their own preparations.
+
 
 ## Identity Access Management (IAM)
 
@@ -2778,14 +2787,6 @@ Exam Tips: ⭐
 
 
 
-
-
-
-
-
-
-
-
 Q. how AWS Auto Scaling (for DynamoDB, Aurora, S3) happens how its differnt then EC2 autoscaling ? do we have special optinos for AWS autoscaling ?
 Q. Aurora Global Database, DynamoDB Global Tables works internally ? how globalness is achieved then other normal offerings for RDBMS and NoSql alternatives ?
 Q. EventBridge vs SQS ?
@@ -2873,6 +2874,42 @@ validate
 </details>
 
 <details>
+<summary>🎯🔥Q. Globally resilient vs Regional Resilient vs AZ reliant services list those and important things to know about them </summary>
+
+- Globally Resilient Services
+  - Services that operate across multiple AWS Regions simultaneously
+  - Data is automatically replicated across all AWS Regions
+  - Can withstand entire region failure
+  - Key Examples:
+    - IAM (Identity and Access Management)
+    - Route 53 (DNS Service)
+    - CloudFront (CDN)
+    - WAF (Web Application Firewall)
+
+- Regional Resilient Services
+  - Services that automatically replicate data across all AZs in a Region
+  - Can withstand AZ failures within the region
+  - Continue operating even if one or more AZs fail
+  - Key Examples:
+    - S3 (Simple Storage Service)
+    - DynamoDB
+    - SQS (Simple Queue Service)
+    - ECS (Elastic Container Service)
+    - EFS (Elastic File System)
+
+AZ Resilient Services
+  - Services that run in a single AZ
+  - Need manual configuration for multi-AZ resilience
+  - Key Examples:
+    - EC2 instances (by default)
+    - EBS volumes
+    - RDS Single-AZ deployments
+</details>
+
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+
+<details>
 <summary>🎯🔥Q. Template 2 </summary>
 </details>
 
@@ -2881,3 +2918,19 @@ validate
 </details>
 
 ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+
+⭐⭐⭐⭐⭐⭐ one liners ⭐⭐⭐⭐⭐⭐
+
+⭐⭐⭐⭐⭐⭐ Miscellaneous  ⭐⭐⭐⭐⭐⭐
+- The only way to retrieve `instance metadata` is to use the link-local address, which is 169.254.169.254.
+- for granting cross-account access always choose the resource based policies, because it has `Principle` element (dentity-based policies alone cannot grant cross-account access)
+
+
+
+⭐⭐⭐⭐⭐⭐ Design Secure Architectures ⭐⭐⭐⭐⭐⭐
+
+- SCPs ≠ IAM Policies (SCPs set boundaries; IAM grants permissions within those boundaries)
+- Control Tower = `Governance Framework`; SCPs = `Permission Enforcement Mechanism`
+- SCPs require AWS Organizations (Control Tower automatically creates an Org)
+
