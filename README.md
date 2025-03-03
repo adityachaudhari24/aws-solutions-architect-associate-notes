@@ -2930,7 +2930,14 @@ AZ Resilient Services
 
 ⭐⭐⭐⭐⭐⭐ Design Secure Architectures ⭐⭐⭐⭐⭐⭐
 
-- SCPs ≠ IAM Policies (SCPs set boundaries; IAM grants permissions within those boundaries)
+- SCPs ≠ IAM Policies (SCPs set boundaries; IAM grants permissions within those boundaries), SCPs require AWS Organizations
 - Control Tower = `Governance Framework`; SCPs = `Permission Enforcement Mechanism`
-- SCPs require AWS Organizations (Control Tower automatically creates an Org)
+- ❌ "Never create access keys for the AWS account root user" - AWS IAM Documentation.
+- 🎯 STS(Security Token Service) is temporary credentials upto 12 hours for IAM roles mainly used for `role switching(same account), cross-account access,SSO, SAML` (Key STS APIs: AssumeRole, AssumeRoleWithSAML, AssumeRoleWithWebIdentity)
+-  Always prefer roles over IAM users for programmatic access (e.g., EC2, Lambda).
+- NAT gateways cannot work without Internet gateway. Flow is (Private Subnet ---> NATGW ---> IGW ---> Internet).
+- Subnets are inside VPC and route-tables and network ACLs are attached to the subnets.
+
+ 
+
 
