@@ -2610,6 +2610,16 @@ Exam Tips: ⭐
 - Cost ↑ as RTO/RPO ↓ (e.g., Multi-Site is expensive but fastest).
 - RPO depends on backup/replication frequency (e.g., hourly snapshots → 1hr RPO).
 
+Strategy	RPO	RTO	Cost	AWS Pattern Example
+Backup & Restore	Hours → Days	24+ hours	$	S3 versioning + AWS Backup
+| Strategy | RPO | RTO | Cost | AWS Pattern Example |
+|----------|-----|-----|------|-------------------|
+| Backup & Restore | Hours → Days | 24+ hours | $ | S3 versioning + AWS Backup |
+| Pilot Light | Minutes | 2-4 hours | $$ | RDS snapshot in another region |
+| Warm Standby | Seconds | 30min-2hrs | $$$ | Always-on RDS read replica + EC2 AMI |
+| Active-Active | Near-zero | <1 min | $$$$ | Multi-region Aurora + Route 53 |
+
+
 Common Mistakes: ⚠️
 
 - Confusing RTO (time to recover) with RPO (data loss tolerance).
@@ -2943,6 +2953,29 @@ AZ Resilient Services
 - Network ACLs - both inbound and outbound traffic is DENIED by default. (Stateless - you must explicitly allow both inbound and outbound traffic)
 - `AWS VPC peering` only connects VPCs within AWS, does not support VPC connections outside VPCs, for non AWS VPC connections useVPN or AWS Direct Connect instead. 
 
- 
+
+⭐⭐⭐⭐⭐⭐ Design Resillient Architectures ⭐⭐⭐⭐⭐⭐
+- `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
+- RPO/RTO Cheat Sheet:
+    - Seconds RPO: Use synchronous replication (Global Tables, Multi-AZ).
+    - Minutes RPO: Async replication + frequent backups (WAL, read replicas).
+    - Hours RPO: Scheduled backups/archives.
+
+⭐⭐⭐⭐⭐⭐ Design High-Performing Architectures  ⭐⭐⭐⭐⭐⭐
+
+- There are two types of replication in S3 S3 cross region replication and S3 same region replication.
+    - versioning must be enabled for both types of replication
+    - both unencrypted and encrypted replication possible.
+
+- EBS is AZ level , its replication is also AZ level hence its very resilient.
+- If you are using VPC peering to add access between two of your AWS VPCs what can you use to control access between the AWS VPCs ?
+  - Network ACLs and Security Groups.
+
+
+⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
+
+- If a question emphasizes `serverless`, `cost savings`, or `independent scaling`, Lambda + API Gateway is likely the answer.
+- ECS/Fargate: Better for stateful services or legacy apps needing Docker.
+- Remember NAT gateways are not free. They cost per hour.
 
 
