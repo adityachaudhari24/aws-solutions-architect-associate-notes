@@ -1760,12 +1760,6 @@ Exam Tips: ⭐
 - `MFA & Security`: User Pools enforce MFA, password policies, and account recovery.
 - Cognito Sync is deprecated; use AppSync for syncing user data across devices.
 
-Common Mistakes: ⚠️
-
-- Assuming User Pools alone grant AWS access (they don’t; use Identity Pools for credentials).
-- Forgetting to configure IAM roles for Identity Pools, leading to permission errors.
-- `Confusing Cognito with IAM roles for EC2/Lambda` (Cognito is for end-users, IAM roles for AWS services).
-
 </details>
 
 
@@ -2953,13 +2947,25 @@ AZ Resilient Services
 - Network ACLs - both inbound and outbound traffic is DENIED by default. (Stateless - you must explicitly allow both inbound and outbound traffic)
 - `AWS VPC peering` only connects VPCs within AWS, does not support VPC connections outside VPCs, for non AWS VPC connections useVPN or AWS Direct Connect instead. 
 
+- WS Config vs. CloudWatch/CloudTrail
+   - `Config` = "What’s my current/resource state?" (Compliance & Change tracking)
+   - `CloudTrail` = "Who made this change?"
+   - `CloudWatch` = "Is this metric abnormal?"
 
-⭐⭐⭐⭐⭐⭐ Design Resillient Architectures ⭐⭐⭐⭐⭐⭐
+- using `AssumeRole` is highly recommended for cross-account AWS access due to its security, flexibility, and alignment with AWS best practices.
+- Amazon GuardDuty analyzes tens of billions of events across multiple AWS data sources, such as AWS CloudTrail events, Amazon VPC Flow Logs, and DNS logs.
+-
+
+  ⭐⭐⭐⭐⭐⭐ Design Resillient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
 - RPO/RTO Cheat Sheet:
     - Seconds RPO: Use synchronous replication (Global Tables, Multi-AZ).
     - Minutes RPO: Async replication + frequent backups (WAL, read replicas).
     - Hours RPO: Scheduled backups/archives.
+- In general, when your object size reaches 100 MB, you should consider using multipart uploads instead of uploading the object in a single operation. Multipart upload provides improved throughput, therefore it facilitates faster file uploads.
+- AWS Global Accelerator primarily optimizes traffic routing for applications (e.g., EC2, ALB)  . For faster S3 uploads, use S3 Transfer Acceleration instead, which leverages edge locations to reduce latency
+- It is not possible to modify a launch configuration once it is created for auto scaling groups.
+
 
 ⭐⭐⭐⭐⭐⭐ Design High-Performing Architectures  ⭐⭐⭐⭐⭐⭐
 
@@ -2970,6 +2976,17 @@ AZ Resilient Services
 - EBS is AZ level , its replication is also AZ level hence its very resilient.
 - If you are using VPC peering to add access between two of your AWS VPCs what can you use to control access between the AWS VPCs ?
   - Network ACLs and Security Groups.
+- Spectrum vs. Athena (both query S3, but Spectrum integrates with Redshift SQL)
+- Lambda layer is sort of classpath for Lambda. ( storing commonly used code/libraries in classpath paths provided by AWS Lambda). For different language there are different ways to create layers. (https://docs.aws.amazon.com/lambda/latest/dg/packaging-layers.html)
+- VPC Sharing vs VPC Peering ? 
+    - VPC Sharing : allow multiple AWS accounts to share the same VPC and shares subnet.
+      - better for cost optimization, better for centralize networking
+    - VPC Peering : establish direct connection between two VPCs.
+      - cross region communication. Third party Integration.
+
+- AWS Global Accelerator is a good fit for non-HTTP use cases, such as gaming (UDP), IoT (MQTT), or Voice over IP, as well as for HTTP use cases that specifically require static IP addresses or deterministic, fast regional failover. Both services integrate with AWS Shield for DDoS protection.
+- You can migrate data to Amazon Redshift databases using AWS Database Migration Service.
+- "DNS caching," "mobile users," "time-sensitive rollout" → Always pick Global Accelerator over Route 53.
 
 
 ⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
@@ -2977,5 +2994,17 @@ AZ Resilient Services
 - If a question emphasizes `serverless`, `cost savings`, or `independent scaling`, Lambda + API Gateway is likely the answer.
 - ECS/Fargate: Better for stateful services or legacy apps needing Docker.
 - Remember NAT gateways are not free. They cost per hour.
+- Use AWS Cost Explorer Resource Optimization to get a report of Amazon EC2 instances that are either idle or have low utilization and use `AWS Compute Optimizer` to look at instance type recommendations.
+- There is no additional charge for Compute Optimizer. EC2 instance type and EC2 Auto Scaling group configuration recommendations are available for free. 
+- You can't directly copy data from AWS Snowball Edge devices into Amazon S3 Glacier.
+- Amazon ECS with EC2 launch type is charged based on EC2 instances and EBS volumes used. Amazon ECS with Fargate launch type is charged based on vCPU and memory resources that the containerized application requests
+- Use Standard-IA for compliance/audit data or multi-AZ redundancy needs.
+- Use One Zone-IA for non-critical data where cost savings outweigh AZ risk (useful for scenarios where re-create data is possible)
 
-
+- AWS S3 Lifecycle Transition Considerations 
+  - Minimum Age Requirement: Objects must be ≥30 days old to transition to Standard-IA/One Zone-IA; ≥90 days for Glacier/Deep Archive.
+  - Expiration Priority: If both transition and expiration rules apply, S3 processes expiration actions first (risk of unintended deletion)
+  - Small Objects: Avoid transitioning objects <128KB to IA/Glacier – retrieval fees may exceed storage savings.
+  - Glacier Timing: Restores from Glacier take minutes-hours (use Expedited for urgent needs at higher cost).
+  - Versioning Impact: Lifecycle rules apply to both current and previous object versions (costs add up!).
+  - 
