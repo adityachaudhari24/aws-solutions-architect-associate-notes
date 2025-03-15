@@ -232,7 +232,7 @@ Common Mistakes
    - Isolation: Each partition is isolated from the failures of other partitions, providing fault tolerance.
    - 
 
-- `cluster` is single AZ, `spread` is multiple AZs, `partition` is multiple AZs and multiple regions.
+- `cluster` is single AZ, `spread` is multiple AZs, `partition` is multiple AZs however with 1 or more partitions in one AZ.
 
 Simple real-world example for end-to-end visualization: ⭐
 
@@ -1764,7 +1764,7 @@ Exam Tips: ⭐
 
 
 ⭐One liners notes⭐
-- DynamoDB Accelerator (DAX) is a fully managed, highly available, in-memory cache for DynamoDB that delivers up to 10x performance improvement. It caches the most frequently used data, thus offloading the heavy reads on hot keys off your DynamoDB table, hence preventing the "ProvisionedThroughputExceededException" exception.
+- DynamoDB Accelerator (DAX) is a fully managed, highly available, in-memory cache for DynamoDB that delivers up to 10x performance improvement.
 - DynamoDB Streams allows you to capture a ⭐time-ordered sequence of item-level modifications in a DynamoDB table⭐. It's integrated with AWS Lambda so that you create triggers that automatically respond to events in real-time.
 - An Edge-Optimized API Gateway is best for geographically distributed clients. API requests are routed to the nearest CloudFront Edge Location which improves latency. The API Gateway still lives in one AWS Region.
 - Security groups are used exclusively for VPC-based resources – ⭐primarily EC2 instances (and also for other services like RDS, ELB, Lambda, etc. ⭐when they run inside a VPC⭐).⭐
@@ -2960,9 +2960,12 @@ AZ Resilient Services
   - DNS logs
   
 - KMS IMP notes
-  - Key ROtations 
+  - Key Rotations (AWS managed keys rotates annually however customer managed keys can rotate on own schedule) 
+  - There is a waiting period of 7-30 days before you can delete a key.
+  - AWS managed keys are free however CMK's incur the monthly charges.  - AWS managed keys are not available for deletion as well however CMKs can be deleted.
+  - S3 default encryption is enabled for all S3 buckets.
 
-  ⭐⭐⭐⭐⭐⭐ Design Resillient Architectures ⭐⭐⭐⭐⭐⭐
+  ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
 - RPO/RTO Cheat Sheet:
     - Seconds RPO: Use synchronous replication (Global Tables, Multi-AZ).
@@ -2971,7 +2974,13 @@ AZ Resilient Services
 - In general, when your object size reaches 100 MB, you should consider using multipart uploads instead of uploading the object in a single operation. Multipart upload provides improved throughput, therefore it facilitates faster file uploads.
 - AWS Global Accelerator primarily optimizes traffic routing for applications (e.g., EC2, ALB)  . For faster S3 uploads, use S3 Transfer Acceleration instead, which leverages edge locations to reduce latency
 - It is not possible to modify a launch configuration once it is created for auto scaling groups.
+- Target Tracking is designed for dynamic metric-based scaling.
 
+- ASG policies
+  - `Target Tracking`: Scales based on a target metric (e.g., CPU utilization) - Fully automated, best for steady-state workloads, Avoid if workload needs multi-metric scaling(the use step scaling)
+  - `step scaling`: Scales based on step adjustments (Add 2 instances if CPU >75%, +3 more if >85%.) - Granular control for variable workloads, require manual alarm setup.
+  - `Simple scaling`: Scales based on a single metric (e.g., CPU >75%) - Basic, manual scaling. (less flexible than Target Tracking).
+  - `Scheduled scaling`: Scales based on time (e.g., +2 instances at 9 AM) - For predictable traffic patterns.
 
 ⭐⭐⭐⭐⭐⭐ Design High-Performing Architectures  ⭐⭐⭐⭐⭐⭐
 
@@ -2994,6 +3003,12 @@ AZ Resilient Services
 - You can migrate data to Amazon Redshift databases using AWS Database Migration Service.
 - "DNS caching," "mobile users," "time-sensitive rollout" → Always pick Global Accelerator over Route 53.
 
+- S3 object upload thresholds and different techniques: 
+  - Maximum single object size in S3: 5 TB
+  - Maximum single upload (PUT) size: 5 GB
+  - For multipart upload, Recommended for files > 100 MB < 5 GB
+  - Combine Multipart with the  S3 Transfer Acceleration for even better performance when uploading large files over long distances. Internally Transfer Acceleration uses CloudFront edge locations to accelerate uploads.
+
 
 ⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
 
@@ -3013,4 +3028,8 @@ AZ Resilient Services
   - Small Objects: Avoid transitioning objects <128KB to IA/Glacier – retrieval fees may exceed storage savings.
   - Glacier Timing: Restores from Glacier take minutes-hours (use Expedited for urgent needs at higher cost).
   - Versioning Impact: Lifecycle rules apply to both current and previous object versions (costs add up!).
-  - 
+
+- snowball edge vs snowball vs snowmobile sized
+  - Snowball Edge: Use for 10TB - 80TB per device (think laptop-sized)
+  - Snowball: Legacy device, replaced by Snowball Edge (no longer recommended)
+  - Snowmobile: Use for 100PB+ (think shipping container, literally a truck)
