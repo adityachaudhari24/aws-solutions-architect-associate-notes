@@ -2932,6 +2932,10 @@ AZ Resilient Services
 - The only way to retrieve `instance metadata` is to use the link-local address, which is 169.254.169.254.
 - for granting cross-account access always choose the resource based policies, because it has `Principle` element (dentity-based policies alone cannot grant cross-account access)
 
+- deployment types
+  - multi-AZ deployment - for high availability
+  - multi-region deployment - for disaster recovery
+  - read replica - for read scaling
 
 
 ⭐⭐⭐⭐⭐⭐ Design Secure Architectures ⭐⭐⭐⭐⭐⭐
@@ -2963,7 +2967,7 @@ AZ Resilient Services
   - Key Rotations (AWS managed keys rotates annually however customer managed keys can rotate on own schedule) 
   - There is a waiting period of 7-30 days before you can delete a key.
   - AWS managed keys are free however CMK's incur the monthly charges.  - AWS managed keys are not available for deletion as well however CMKs can be deleted.
-  - S3 default encryption is enabled for all S3 buckets.
+  - S3 default encryption is enabled for all S3 buckets. (⭐does not provide the ability to audit trail the usage of the encryption key)
 
   ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
@@ -2981,6 +2985,10 @@ AZ Resilient Services
   - `step scaling`: Scales based on step adjustments (Add 2 instances if CPU >75%, +3 more if >85%.) - Granular control for variable workloads, require manual alarm setup.
   - `Simple scaling`: Scales based on a single metric (e.g., CPU >75%) - Basic, manual scaling. (less flexible than Target Tracking).
   - `Scheduled scaling`: Scales based on time (e.g., +2 instances at 9 AM) - For predictable traffic patterns.
+
+- maximum throughput for a single FIFO SQS queue by default? 
+    - 300 messages/sec (without batching).
+    - Using message batching (up to 10 messages per batch), this limit scales to 3,000 messages/sec
 
 ⭐⭐⭐⭐⭐⭐ Design High-Performing Architectures  ⭐⭐⭐⭐⭐⭐
 
@@ -3009,6 +3017,15 @@ AZ Resilient Services
   - For multipart upload, Recommended for files > 100 MB < 5 GB
   - Combine Multipart with the  S3 Transfer Acceleration for even better performance when uploading large files over long distances. Internally Transfer Acceleration uses CloudFront edge locations to accelerate uploads.
 
+- customer origins in CloudFront can be S3 buckets, custom origins (outside AWS) , or EC2 instances. (This is a go-to solution for improving global performance without migrating workloads to AWS.)
+- ALB routing types
+  - `Path-based routing`: Different paths go to different target groups (e.g., /api to API servers, /app to App servers).
+  - `Host-based routing`: Different hostnames go to different target groups (e.g., api.example.com to API servers, app.example.com to App servers).
+  - `header-based routing`: Different headers go to different target groups (e.g., X-My-Header: api to API servers, X-My-Header: app to App servers).
+  - `query string routing`: Different query strings go to different target groups (e.g., ?app=1 to App servers, ?api=1 to API servers).
+  - `HTTP method routing`: Different HTTP methods go to different target groups (e.g., GET to App servers, POST to API servers).
+  - `source IP routing`: Different source IPs go to different target groups (e.g.,
+  - `weighted routing`: Different weights go to different target groups (e.g., 80% to App servers, 20% to API servers).
 
 ⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
 
@@ -3033,3 +3050,6 @@ AZ Resilient Services
   - Snowball Edge: Use for 10TB - 80TB per device (think laptop-sized)
   - Snowball: Legacy device, replaced by Snowball Edge (no longer recommended)
   - Snowmobile: Use for 100PB+ (think shipping container, literally a truck)
+
+- There are no S3 data transfer charges when data is transferred in from the internet. Also with S3TA, you pay only for transfers that are accelerated.
+- Cost of test file storage on Amazon S3 Standard < Cost of test file storage on Amazon EFS < Cost of test file storage on Amazon EBS
