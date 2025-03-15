@@ -2953,8 +2953,14 @@ AZ Resilient Services
    - `CloudWatch` = "Is this metric abnormal?"
 
 - using `AssumeRole` is highly recommended for cross-account AWS access due to its security, flexibility, and alignment with AWS best practices.
-- Amazon GuardDuty analyzes tens of billions of events across multiple AWS data sources, such as AWS CloudTrail events, Amazon VPC Flow Logs, and DNS logs.
--
+- Amazon GuardDuty analyze below 4 main types of log types
+  - CloudTrail management events (Monitors AWS account activities)
+  - VPC flow logs ( Analyze network traffic)
+  - CloudTrail S3 Data Events
+  - DNS logs
+  
+- KMS IMP notes
+  - Key ROtations 
 
   ⭐⭐⭐⭐⭐⭐ Design Resillient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
