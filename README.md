@@ -970,14 +970,13 @@ Exam Tips: ⭐
 Common Mistakes: ⚠️
 
 - Assuming health checks work for ⭐private resources⭐ without CloudWatch integration (Route 53 can’t access private IPs directly).
-- Forgetting to configure correct status codes (e.g., expecting HTTP 200 instead of 3xx).
 - Overlooking request intervals (default: 30 seconds; faster checks cost more).
 </details>
 
 
 
 🎯 ⭐One liners notes⭐ 🎯
-- except for Alias records, TTL is mandatory for each record in the route 53.
+- except for Alias records, TTL is mandatory for each record in the route 53. (TTL - Time to live - how long the record is cached by the resolver(client)). 
 - alias records are used to route traffic to AWS resources like ELB, CloudFront, S3, etc. without any additional cost and TTL is not required for alias records.
 - you cannot set ALias for EC2 instances, RDS, etc. you can only set alias for AWS resources like ELB, CloudFront, S3, etc.
 - 
@@ -2968,6 +2967,7 @@ AZ Resilient Services
   - There is a waiting period of 7-30 days before you can delete a key.
   - AWS managed keys are free however CMK's incur the monthly charges.  - AWS managed keys are not available for deletion as well however CMKs can be deleted.
   - S3 default encryption is enabled for all S3 buckets. (⭐does not provide the ability to audit trail the usage of the encryption key)
+  - Multi-region KMS keys let you use the same key in different regions for encryption/decryption.
 
   ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
@@ -3053,3 +3053,51 @@ AZ Resilient Services
 
 - There are no S3 data transfer charges when data is transferred in from the internet. Also with S3TA, you pay only for transfers that are accelerated.
 - Cost of test file storage on Amazon S3 Standard < Cost of test file storage on Amazon EFS < Cost of test file storage on Amazon EBS
+
+<details>
+<summary>🎯 Storage Performance vs Persistence Tradeoffs:   </summary>
+Instance Store
+Highest Performance: Direct hardware attachment
+Lowest Persistence: Data lost on stop/terminate
+Best for: Temporary data, cache, scratch space
+Cost: Included in instance price
+
+
+EBS Volumes
+Good Performance: Network attached but optimized
+High Persistence: Independent of instance lifecycle
+Best for: OS/application files, databases
+Cost: Pay for provisioned size
+
+
+EFS
+Lower Performance: Shared file system
+High Persistence: Multi-AZ redundancy
+Best for: Shared files across instances
+Cost: Pay for used storage
+
+
+
+S3
+Lowest Performance: Object storage via HTTP
+Highest Persistence: 99.999999999% durability
+Best for: Static files, backups, data lake
+Cost: Lowest per GB
+
+
+Key Exam Scenarios:  
+Need lowest latency → Instance Store
+Need data persistence → EBS/EFS/S3
+Need shared storage → EFS
+Need lowest cost → S3
+Need block storage → EBS
+Need file system → EFS
+
+
+Remember:  
+Higher performance = Higher cost
+Higher durability = More complexity
+Shared access = Lower performance
+Local storage = Higher performance but risky
+</details>
+
