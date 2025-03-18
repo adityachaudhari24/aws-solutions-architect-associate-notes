@@ -451,7 +451,6 @@ A machine learning job processing large datasets where temporary storage is need
 **EBS Key Points:**
 - Block storage that can be attached to a single EC2 instance.
 - Ideal for databases, transactional applications, or any workloads requiring persistent storage.
-- EBS volumes persist even when the EC2 instance is stopped, unlike EFS, which supports multiple simultaneous mounts.
 
 **Common Mistakes:**
 - **EFS vs. EBS for shared access:** EFS is the right choice for shared data access across multiple instances. EBS is not designed for multiple instances.
@@ -2480,7 +2479,7 @@ Exam Tips: ⭐
 - `Endpoint Policies` control access (like IAM policies).
 - Interface Endpoints incur additional costs, while Gateway Endpoints are free.
 - ⭐Gateway Endpoints only work within the same region.⭐
-- ⭐Interface Endpoints require security groups (gateway endpoints do not).⭐
+- ⭐Interface Endpoints require security groups (gateway endpoints do not they use route table).⭐
 
 
 Common Mistakes: ⚠️
@@ -3055,49 +3054,64 @@ AZ Resilient Services
 - Cost of test file storage on Amazon S3 Standard < Cost of test file storage on Amazon EFS < Cost of test file storage on Amazon EBS
 
 <details>
-<summary>🎯 Storage Performance vs Persistence Tradeoffs:   </summary>
-Instance Store
-Highest Performance: Direct hardware attachment
-Lowest Persistence: Data lost on stop/terminate
-Best for: Temporary data, cache, scratch space
-Cost: Included in instance price
+<summary>🎯Q. Storage Performance vs Persistence Tradeoffs </summary>
+- `Instance Store`:
+  - Highest Performance: Direct hardware attachment
+  - Lowest Persistence: Data lost on stop/terminate
+  - Best for: Temporary data, cache, scratch space
+  - Cost: Included in instance price
 
+- `EBS Volumes`:
+  - Good Performance: Network attached but optimized
+  - High Persistence: Independent of instance lifecycle
+  - Best for: OS/application files, databases
+  - Cost: Pay for provisioned size
 
-EBS Volumes
-Good Performance: Network attached but optimized
-High Persistence: Independent of instance lifecycle
-Best for: OS/application files, databases
-Cost: Pay for provisioned size
+- `EFS`:
+  - Lower Performance: Shared file system
+  - High Persistence: Multi-AZ redundancy
+  - Best for: Shared files across instances
+  - Cost: Pay for used storage
 
+- `S3`:
+  - Lowest Performance: Object storage via HTTP
+  - Highest Persistence: 99.999999999% durability
+  - Best for: Static files, backups, data lake
+  - Cost: Lowest per GB
 
-EFS
-Lower Performance: Shared file system
-High Persistence: Multi-AZ redundancy
-Best for: Shared files across instances
-Cost: Pay for used storage
+Exam Tips: ⭐
 
+- Key Scenarios:
+  - Need lowest latency → Instance Store
+  - Need data persistence → EBS/EFS/S3 
+  - Need shared storage → EFS
+  - Need lowest cost → S3
+  - Need block storage → EBS
+  - Need file system → EFS
 
+Common Mistakes: ⚠️
 
-S3
-Lowest Performance: Object storage via HTTP
-Highest Persistence: 99.999999999% durability
-Best for: Static files, backups, data lake
-Cost: Lowest per GB
+- Higher performance = Higher cost
+- Higher durability = More complexity 
+- Shared access = Lower performance
+- Local storage = Higher performance but risky
 
-
-Key Exam Scenarios:  
-Need lowest latency → Instance Store
-Need data persistence → EBS/EFS/S3
-Need shared storage → EFS
-Need lowest cost → S3
-Need block storage → EBS
-Need file system → EFS
-
-
-Remember:  
-Higher performance = Higher cost
-Higher durability = More complexity
-Shared access = Lower performance
-Local storage = Higher performance but risky
 </details>
 
+- Storage Gateway vs DataSync
+  - use Storage Gateway when you need realtime access to cloud storage with standard protocol
+  - use DataSync when you need to migrate terrabyte/petabytes to AWS once or periodically.
+  - Both services complement each other in hybrid architectures but address distinct workflow needs.
+
+- AWS Cost management tools
+  - `AWS Cost explorer`
+    - Analyze compute spend by service, instance type, or tags.
+    - Identify underutilized resources (e.g., instances with <10% CPU usage).
+    
+  - `AWS Budgets`
+    - Set alerts for EC2, Lambda, or Fargate costs.
+    - Monitor costs by service, linked account, or resource.
+    
+  - `Trusted Advisor`
+    - Check recommendations like "Low Utilization EC2 Instances" or "Idle Load Balancers."
+  
