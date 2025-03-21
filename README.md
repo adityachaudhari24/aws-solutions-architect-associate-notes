@@ -2494,7 +2494,7 @@ Common Mistakes: ⚠️
 
 
 <details>
-<summary>🎯Q. Site to Site VPN notes and its comparision with others connection when it comes to connecting AWS with on-premise </summary>
+<summary>🎯Q. Site to Site VPN notes and its comparison with others connection when it comes to connecting AWS with on-premise </summary>
 
 - `Site-to-Site VPN` establishes an encrypted IPSec connection between an on-premises network and AWS VPC, using a Virtual Private Gateway (VGW) as the AWS-side endpoint.
 - It uses a VGW(Virtual Private Gateway) and a Customer Gateway (CGW) on-premises, with a VPN tunnel for secure communication.
@@ -2968,6 +2968,16 @@ AZ Resilient Services
   - S3 default encryption is enabled for all S3 buckets. (⭐does not provide the ability to audit trail the usage of the encryption key)
   - Multi-region KMS keys let you use the same key in different regions for encryption/decryption.
 
+
+- dedicated instance vs dedicated host
+  - Both options provide hardware isolation, but ONLY Hosts let you control placement
+  - Dedicated Host = Renting an entire apartment building
+  - Dedicated Instance = Renting a single apartment
+  - Dedicated Hosts are more expensive but provide more control over instance placement
+  - Dedicated Instances are cheaper but offer less control over placement
+
+
+
   ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
 - `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
 - RPO/RTO Cheat Sheet:
@@ -3013,7 +3023,7 @@ AZ Resilient Services
 - S3 object upload thresholds and different techniques: 
   - Maximum single object size in S3: 5 TB
   - Maximum single upload (PUT) size: 5 GB
-  - For multipart upload, Recommended for files > 100 MB < 5 GB
+  - For multipart upload, Recommended for files > 100 MB < 5 GB. `Object > 5GB multipart is required till 5TB.`
   - Combine Multipart with the  S3 Transfer Acceleration for even better performance when uploading large files over long distances. Internally Transfer Acceleration uses CloudFront edge locations to accelerate uploads.
 
 - customer origins in CloudFront can be S3 buckets, custom origins (outside AWS) , or EC2 instances. (This is a go-to solution for improving global performance without migrating workloads to AWS.)
@@ -3025,6 +3035,9 @@ AZ Resilient Services
   - `HTTP method routing`: Different HTTP methods go to different target groups (e.g., GET to App servers, POST to API servers).
   - `source IP routing`: Different source IPs go to different target groups (e.g.,
   - `weighted routing`: Different weights go to different target groups (e.g., 80% to App servers, 20% to API servers).
+
+- DAX is used for caching reads, not to help with writes.
+
 
 ⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
 
