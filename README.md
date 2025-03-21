@@ -1411,7 +1411,7 @@ Imagine an e-commerce app:
 
 - `SQS`: Processes orders one-by-one (e.g., payment service pulls orders from a queue).
 - `SNS`: Sends order confirmation emails/SMS (1 event → multiple subscribers).
-- `Kinesis`: Analyzes real-time user clickstreams (e.g., tracking page views for live dashboards).
+- `Kinesis`: Analyzes real-time user click streams (e.g., tracking page views for live dashboards).
 
 Exam Tips: ⭐
 
@@ -1633,7 +1633,7 @@ Common Mistakes: ⚠️
 <details>
 <summary>🎯Q. Dynamo DB important notes </summary>
 
-- Amazon DynamoDB is a fully managed, serverless NoSQL database service (key-value & document) offering ⭐single-digit millisecond performance⭐, ⭐automatic scaling⭐, ⭐built-in high availability with multi-AZ replication⭐, and features like global tables, TTL, and streams. ⭐It's ideal for scalable, low-latency applications.⭐
+- Amazon DynamoDB is a fully managed, serverless NoSQL database service (key-value & document) offering ⭐single-digit millisecond performance⭐, ⭐automatic scaling⭐, ⭐built-in high availability with multi-AZ replication⭐, and features like global tables, TTL(Time to live), and streams. ⭐It's ideal for scalable, low-latency applications.⭐
 
 ⭐Real-World Example: ⭐
 An e-commerce platform uses DynamoDB to:
@@ -2797,8 +2797,8 @@ Exam Tips: ⭐
 
 
 🚀 - Questions to answer later <br>
-Q. how AWS Auto Scaling (for DynamoDB, Aurora, S3) happens how its differnt then EC2 autoscaling ? do we have special optinos for AWS autoscaling ?
-Q. Aurora Global Database, DynamoDB Global Tables works internally ? how globalness is achieved then other normal offerings for RDBMS and NoSql alternatives ?
+Q. how AWS Auto Scaling (for DynamoDB, Aurora, S3) happens how its different then EC2 autoscaling ? do we have special optinos for AWS autoscaling ?
+Q. Aurora Global Database, DynamoDB Global Tables works internally ? how globals is achieved then other normal offerings for RDBMS and NoSql alternatives ?
 Q. EventBridge vs SQS ?
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br> what does it mean by burst workload?
 Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
@@ -2977,6 +2977,10 @@ AZ Resilient Services
   - Dedicated Hosts are more expensive but provide more control over instance placement
   - Dedicated Instances are cheaper but offer less control over placement
 
+- For scenarios involving AWS service interactions (e.g., ECS → SQS), task roles are always more secure than instance roles or static credentials. This aligns with AWS’s security pillar in the Well-Architected Framework.
+- Security groups do not control access to managed AWS services such as Amazon SQS. Instead, security groups control incoming traffic to instances and outgoing traffic from instances.
+- You cannot create an encrypted snapshot of an unencrypted DB instance. However, you can encrypt a copy of the unencrypted snapshot and restore the snapshot to a new DB instance.
+- Use `OAC (origin Access Control)` with CloudFront → Lock S3 access to CloudFront only. Users get files via CF, not directly from S3.
 
 
   ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
@@ -3000,6 +3004,10 @@ AZ Resilient Services
 - maximum throughput for a single FIFO SQS queue by default? 
     - 300 messages/sec (without batching).
     - Using message batching (up to 10 messages per batch), this limit scales to 3,000 messages/sec
+
+- "Multi-AZ for HA, Read Replicas for Reads"
+
+
 
 ⭐⭐⭐⭐⭐⭐ Design High-Performing Architectures  ⭐⭐⭐⭐⭐⭐
 
@@ -3039,6 +3047,10 @@ AZ Resilient Services
   - `weighted routing`: Different weights go to different target groups (e.g., 80% to App servers, 20% to API servers).
 
 - DAX is used for caching reads, not to help with writes.
+- `S3 One Zone-IA` charges for retrieval. This storage class `is not the most cost-effective choice for data that has unknown or variable access patterns`. S3 One Zone-IA is best suited for infrequently accessed data that does not require the availability and resilience of S3 Standard or S3 Standard-IA, such as secondary backup copies of on-premises data or easily re-creatable data.
+- The write-through strategy adds data or updates data that is in the cache whenever the application writes data to the database. Data in the cache is never stale because the data in the cache is updated every time the application writes the data to the database. ElastiCache supports relational databases.
+
+
 
 
 ⭐⭐⭐⭐⭐⭐ Design Cost optimized Architecture ⭐⭐⭐⭐⭐⭐
