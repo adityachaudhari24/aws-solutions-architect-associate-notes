@@ -2788,7 +2788,11 @@ Exam Tips: ⭐
 </details>
 
 <details>
-<summary>🎯Q. TODO : Why Aurora DB is fault-tolerant and RDS is not ? also why Aurora is more scalable then RDS ?</summary>
+<summary>🎯Q. hy Aurora DB is fault-tolerant and RDS is not ? also why Aurora is more scalable then RDS ?</summary>
+
+- because :
+- RDS loses an AZ → Failover to standby (minutes of downtime)
+- Aurora loses an AZ → Continues with remaining copies (seconds of impact)
 </details>
 
 
@@ -2796,9 +2800,6 @@ Exam Tips: ⭐
 Q. how AWS Auto Scaling (for DynamoDB, Aurora, S3) happens how its differnt then EC2 autoscaling ? do we have special optinos for AWS autoscaling ?
 Q. Aurora Global Database, DynamoDB Global Tables works internally ? how globalness is achieved then other normal offerings for RDBMS and NoSql alternatives ?
 Q. EventBridge vs SQS ?
-Q. Difference between AWS Config vs CLoudTrail vs CloudWatch .
-
-
 Q. what is bursting meaning ? overall as a concept in the cloud ? <br> what does it mean by burst workload?
 Q. what is SSL/TLS certifications ? who maintains it , generates it? IMP things to know about these certificates ? how they work actually? <br>
 Q. Difference between IPV4 vs IPV6 and why we have IPV6 ? <br>
@@ -2963,7 +2964,7 @@ AZ Resilient Services
   
 - KMS IMP notes
   - Key Rotations (AWS managed keys rotates annually however customer managed keys can rotate on own schedule) 
-  - There is a waiting period of 7-30 days before you can delete a key.
+  - There is a `waiting period of 7-30 days` before you can delete a key.
   - AWS managed keys are free however CMK's incur the monthly charges.  - AWS managed keys are not available for deletion as well however CMKs can be deleted.
   - S3 default encryption is enabled for all S3 buckets. (⭐does not provide the ability to audit trail the usage of the encryption key)
   - Multi-region KMS keys let you use the same key in different regions for encryption/decryption.
@@ -2979,12 +2980,13 @@ AZ Resilient Services
 
 
   ⭐⭐⭐⭐⭐⭐ Design Resilient Architectures ⭐⭐⭐⭐⭐⭐
-- `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because fault tolerance and high availability are all about designing systems to operate through a disaster. Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
+- `Disaster recovery` is a bit different from `fault tolerance` and `high availability` because `fault tolerance` and `high availability` are all about designing systems to operate through a disaster. 
+- Disaster recovery is all about what to plan for and also what to do in the event of a disaster.
 - RPO/RTO Cheat Sheet:
     - Seconds RPO: Use synchronous replication (Global Tables, Multi-AZ).
     - Minutes RPO: Async replication + frequent backups (WAL, read replicas).
     - Hours RPO: Scheduled backups/archives.
-- In general, when your object size reaches 100 MB, you should consider using multipart uploads instead of uploading the object in a single operation. Multipart upload provides improved throughput, therefore it facilitates faster file uploads.
+- In general, when your object size reaches 100 MB, you should consider using `multipart uploads` instead of uploading the object in a single operation. Multipart upload provides `improved throughput`, therefore it facilitates faster file uploads.
 - AWS Global Accelerator primarily optimizes traffic routing for applications (e.g., EC2, ALB)  . For faster S3 uploads, use S3 Transfer Acceleration instead, which leverages edge locations to reduce latency
 - It is not possible to modify a launch configuration once it is created for auto scaling groups.
 - Target Tracking is designed for dynamic metric-based scaling.
